@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchVault — Platform Architecture Reference</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232563eb'/%3E%3Cstop offset='1' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='6' y='8' width='20' height='3' rx='1.5' fill='white' opacity='0.95'/%3E%3Crect x='6' y='14.5' width='14' height='3' rx='1.5' fill='white' opacity='0.7'/%3E%3Crect x='6' y='21' width='9' height='3' rx='1.5' fill='white' opacity='0.45'/%3E%3Ccircle cx='24' cy='22.5' r='4' fill='white' opacity='0.18'/%3E%3Ccircle cx='24' cy='22.5' r='2' fill='%2360a5fa' opacity='0.9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ═══ DARK THEME (default) ═══════════════════════════ */
+  :root, [data-theme="dark"] {
+    --bg:            #080d14;
+    --surface:       #0d1520;
+    --surface2:      #111b2a;
+    --surface3:      #0a1020;
+    --border:        rgba(255,255,255,0.07);
+    --border2:       rgba(255,255,255,0.12);
+    --text:          #e8edf5;
+    --text-muted:    #6b7a93;
+    --text-dim:      #3d4f6a;
+    --shadow-card:   0 2px 16px rgba(0,0,0,0.35);
+    --shadow-panel:  -20px 0 60px rgba(0,0,0,0.5);
+    --shadow-hover:  0 8px 40px rgba(0,0,0,0.4);
+
+    --grid-line:     rgba(255,255,255,0.028);
+
+    --header-bg:     rgba(8,13,20,0.92);
+    --subheader-bg:  rgba(8,13,20,0.7);
+    --panel-bg:      #0b1525;
+    --card-bg:       rgba(255,255,255,0.03);
+    --card-hover-bg: rgba(255,255,255,0.055);
+    --card-hl-bg:    rgba(255,255,255,0.06);
+    --card-border-hover: rgba(255,255,255,0.18);
+    --card-border-hl:    rgba(255,255,255,0.2);
+    --tech-item-bg:  rgba(255,255,255,0.03);
+    --tech-item-hover: rgba(255,255,255,0.06);
+    --metric-bg:     rgba(255,255,255,0.03);
+    --conn-item-bg:  rgba(255,255,255,0.025);
+    --panel-close-bg: rgba(255,255,255,0.05);
+    --panel-close-hover: rgba(255,255,255,0.1);
+
+    --connector-line: rgba(99,130,180,0.5);
+
+    --layer1-bg-a:   #0f1e2d;  --layer1-bg-b:   #0d1725;
+    --layer2-bg-a:   #130d28;  --layer2-bg-b:   #0f0d22;
+    --layer3-bg-a:   #0b1f1a;  --layer3-bg-b:   #0d1a15;
+    --layer4-bg-a:   #1a180d;  --layer4-bg-b:   #151308;
+    --layer5-bg-a:   #1a0f0d;  --layer5-bg-b:   #140c0b;
+    --layer6-bg-a:   #0d0d1f;  --layer6-bg-b:   #0a0a18;
+    --layer7-bg-a:   #0a1220;  --layer7-bg-b:   #080f1a;
+
+    --fds-layer1-bg-a: #0e1230; --fds-layer1-bg-b: #0b0f26;
+    --fds-layer2-bg-a: #130d28; --fds-layer2-bg-b: #0f0d22;
+    --fds-layer3-bg-a: #0b1f1a; --fds-layer3-bg-b: #0d1a15;
+    --fds-layer4-bg-a: #1a180d; --fds-layer4-bg-b: #151308;
+    --fds-layer5-bg-a: #1a0f0d; --fds-layer5-bg-b: #140c0b;
+    --fds-layer6-bg-a: #0d1a1f; --fds-layer6-bg-b: #0a1318;
+    --fds-layer7-bg-a: #0f1e2d; --fds-layer7-bg-b: #0d1725;
+
+    --accent-blue:   #3b82f6;
+    --accent-cyan:   #06b6d4;
+    --accent-green:  #10b981;
+    --accent-amber:  #f59e0b;
+    --accent-purple: #8b5cf6;
+    --accent-rose:   #f43f5e;
+
+    --logo-text-from: #e2e8f5;
+    --logo-text-to:   #94a3c8;
+    --logo-sub:       #3d4f6a;
+
+    --theme-icon-moon: block;
+    --theme-icon-sun:  none;
+  }
+
+  /* ═══ LIGHT THEME ════════════════════════════════════ */
+  [data-theme="light"] {
+    --bg:            #f0f4fa;
+    --surface:       #ffffff;
+    --surface2:      #eef2f8;
+    --surface3:      #e6ebf5;
+    --border:        rgba(0,0,0,0.08);
+    --border2:       rgba(0,0,0,0.13);
+    --text:          #0f172a;
+    --text-muted:    #475569;
+    --text-dim:      #94a3b8;
+    --shadow-card:   0 2px 12px rgba(15,23,42,0.08);
+    --shadow-panel:  -16px 0 48px rgba(15,23,42,0.12);
+    --shadow-hover:  0 8px 32px rgba(15,23,42,0.12);
+
+    --grid-line:     rgba(0,0,0,0.045);
+
+    --header-bg:     rgba(240,244,250,0.95);
+    --subheader-bg:  rgba(240,244,250,0.85);
+    --panel-bg:      #ffffff;
+    --card-bg:       rgba(255,255,255,0.85);
+    --card-hover-bg: rgba(255,255,255,1);
+    --card-hl-bg:    rgba(59,130,246,0.04);
+    --card-border-hover: rgba(0,0,0,0.18);
+    --card-border-hl:    rgba(59,130,246,0.35);
+    --tech-item-bg:  rgba(0,0,0,0.025);
+    --tech-item-hover: rgba(0,0,0,0.05);
+    --metric-bg:     rgba(0,0,0,0.025);
+    --conn-item-bg:  rgba(0,0,0,0.02);
+    --panel-close-bg: rgba(0,0,0,0.05);
+    --panel-close-hover: rgba(0,0,0,0.09);
+
+    --connector-line: rgba(99,130,180,0.35);
+
+    --layer1-bg-a:   #deeeff;  --layer1-bg-b:   #e8f3ff;
+    --layer2-bg-a:   #ede8ff;  --layer2-bg-b:   #f3f0ff;
+    --layer3-bg-a:   #d8f5ed;  --layer3-bg-b:   #e4f9f4;
+    --layer4-bg-a:   #fef3d5;  --layer4-bg-b:   #fffbec;
+    --layer5-bg-a:   #fde8e8;  --layer5-bg-b:   #fff1f1;
+    --layer6-bg-a:   #d5f4fb;  --layer6-bg-b:   #e8f9fd;
+    --layer7-bg-a:   #e0e8ff;  --layer7-bg-b:   #ebf0ff;
+
+    --fds-layer1-bg-a: #e0e3ff; --fds-layer1-bg-b: #eceeff;
+    --fds-layer2-bg-a: #ede8ff; --fds-layer2-bg-b: #f3f0ff;
+    --fds-layer3-bg-a: #d8f5ed; --fds-layer3-bg-b: #e4f9f4;
+    --fds-layer4-bg-a: #fef3d5; --fds-layer4-bg-b: #fffbec;
+    --fds-layer5-bg-a: #fde8e8; --fds-layer5-bg-b: #fff1f1;
+    --fds-layer6-bg-a: #d5f4fb; --fds-layer6-bg-b: #e8f9fd;
+    --fds-layer7-bg-a: #deeeff; --fds-layer7-bg-b: #e8f3ff;
+
+    --accent-blue:   #2563eb;
+    --accent-cyan:   #0891b2;
+    --accent-green:  #059669;
+    --accent-amber:  #d97706;
+    --accent-purple: #7c3aed;
+    --accent-rose:   #e11d48;
+
+    --logo-text-from: #0f172a;
+    --logo-text-to:   #334155;
+    --logo-sub:       #94a3b8;
+
+    --theme-icon-moon: none;
+    --theme-icon-sun:  block;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* Smooth theme transitions on all key elements */
+  body, header, .sub-header, .fds-subheader, .layer, .service-card,
+  .side-panel, .panel-header, .panel-body, .panel-footer, .panel-backdrop,
+  .panel-tech-item, .panel-metric, .panel-conn-item, .search-box,
+  .data-flows-btn, .btn, .tech-tag {
+    transition: background-color 0.28s ease, background 0.28s ease,
+                border-color 0.28s ease, color 0.28s ease,
+                box-shadow 0.28s ease;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: 0 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* ─── HOVER CONNECTION OVERLAY ───────────────────── */
+  #hover-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    overflow: visible;
+  }
+
+  .hover-conn-line {
+    stroke-width: 1.5;
+    fill: none;
+    stroke-dasharray: 5 5;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .hover-conn-line.visible {
+    opacity: 1;
+    animation: dashFlow 1.2s linear infinite;
+  }
+
+  @keyframes dashFlow {
+    to { stroke-dashoffset: -20; }
+  }
+
+  .hover-conn-dot {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+
+  .hover-conn-dot.visible { opacity: 1; }
+
+  .hover-conn-arrow {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .hover-conn-arrow.visible { opacity: 1; }
+
+  /* Card hover glow when it's a connection target */
+  .service-card.conn-target {
+    box-shadow: 0 0 0 1.5px var(--conn-color, #3b82f6), 0 0 18px rgba(59,130,246,0.18);
+    border-color: var(--conn-color, #3b82f6) !important;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+
+  /* ─── CANVAS CONNECTIONS ─────────────────────────── */
+  #connections-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.35;
+  }
+
+  /* ─── HEADER ─────────────────────────────────────── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--header-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 52px;
+    gap: 0;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 32px;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 34px; height: 34px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .logo-icon svg {
+    width: 34px; height: 34px;
+    display: block;
+  }
+
+  .logo-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    line-height: 1;
+  }
+
+  .logo-name-main {
+    font-size: 14.5px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    background: linear-gradient(90deg, var(--logo-text-from), var(--logo-text-to));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-name-sub {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--logo-sub);
+    -webkit-text-fill-color: var(--logo-sub);
+    margin-top: 1px;
+  }
+
+  .header-tabs {
+    display: flex;
+    gap: 0;
+    flex: 1;
+  }
+
+  .header-tab {
+    padding: 0 18px;
+    height: 52px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .header-tab.active {
+    border-bottom-color: var(--accent-blue);
+  }
+
+  .header-tab-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .header-tab:not(.active) .header-tab-label { color: var(--text-muted); }
+  .header-tab:hover .header-tab-label { color: var(--text); }
+
+  .header-tab-sub {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  .header-tab.active .header-tab-sub { color: var(--accent-blue); opacity: 0.8; }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  /* ─── SUB-HEADER ─────────────────────────────────── */
+  .sub-header {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 44px;
+    border-bottom: 1px solid var(--border);
+    background: var(--subheader-bg);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 52px;
+    z-index: 99;
+    gap: 16px;
+  }
+
+  .layer-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .layer-count-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    box-shadow: 0 0 6px var(--accent-blue);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .search-box {
+    flex: 1;
+    max-width: 380px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 14px;
+    height: 32px;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus-within {
+    border-color: var(--accent-blue);
+  }
+
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 12.5px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    width: 100%;
+  }
+
+  .search-box input::placeholder { color: var(--text-dim); }
+
+  .search-icon { color: var(--text-dim); font-size: 13px; flex-shrink: 0; }
+
+  .data-flows-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 16px;
+    height: 34px;
+    background: rgba(59,130,246,0.10);
+    border: 1.5px solid rgba(59,130,246,0.35);
+    border-radius: 20px;          /* pill shape */
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--accent-blue);
+    cursor: pointer;
+    transition: all 0.22s ease;
+    margin-left: auto;
+    letter-spacing: 0.01em;
+    position: relative;
+    outline: none;
+    white-space: nowrap;
+  }
+
+  .data-flows-btn:hover {
+    background: rgba(59,130,246,0.18);
+    border-color: rgba(59,130,246,0.6);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.10);
+  }
+
+  .data-flows-btn.active {
+    background: rgba(59,130,246,0.18);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15),
+                inset 0 0 12px rgba(59,130,246,0.08);
+  }
+
+  .data-flows-btn.active .df-icon-on  { display: none !important; }
+  .data-flows-btn.active .df-icon-off { display: block !important; }
+  .data-flows-btn:not(.active) .df-icon-on  { display: block !important; }
+  .data-flows-btn:not(.active) .df-icon-off { display: none !important; }
+
+  .df-icon { flex-shrink: 0; }
+  .df-label { line-height: 1; }
+
+  /* Light-mode adjustments */
+  [data-theme="light"] .data-flows-btn {
+    background: rgba(37,99,235,0.07);
+    border-color: rgba(37,99,235,0.3);
+    color: var(--accent-blue);
+  }
+  [data-theme="light"] .data-flows-btn:hover {
+    background: rgba(37,99,235,0.13);
+    border-color: rgba(37,99,235,0.55);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+  }
+  [data-theme="light"] .data-flows-btn.active {
+    background: rgba(37,99,235,0.12);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ─── MAIN CONTENT ───────────────────────────────── */
+  main {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ─── LAYER SECTION ──────────────────────────────── */
+  .layer {
+    border-radius: 16px;
+    border: 1px solid var(--border2);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    animation: fadeSlide 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .layer:nth-child(1) { animation-delay: 0.05s; }
+  .layer:nth-child(2) { animation-delay: 0.1s; }
+  .layer:nth-child(3) { animation-delay: 0.15s; }
+  .layer:nth-child(4) { animation-delay: 0.2s; }
+  .layer:nth-child(5) { animation-delay: 0.25s; }
+  .layer:nth-child(6) { animation-delay: 0.3s; }
+  .layer:nth-child(7) { animation-delay: 0.35s; }
+
+  .layer:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .layer-1 { background: linear-gradient(135deg, var(--layer1-bg-a) 0%, var(--layer1-bg-b) 100%); }
+  .layer-2 { background: linear-gradient(135deg, var(--layer2-bg-a) 0%, var(--layer2-bg-b) 100%); }
+  .layer-3 { background: linear-gradient(135deg, var(--layer3-bg-a) 0%, var(--layer3-bg-b) 100%); }
+  .layer-4 { background: linear-gradient(135deg, var(--layer4-bg-a) 0%, var(--layer4-bg-b) 100%); }
+  .layer-5 { background: linear-gradient(135deg, var(--layer5-bg-a) 0%, var(--layer5-bg-b) 100%); }
+  .layer-6 { background: linear-gradient(135deg, var(--layer6-bg-a) 0%, var(--layer6-bg-b) 100%); }
+  .layer-7 { background: linear-gradient(135deg, var(--layer7-bg-a) 0%, var(--layer7-bg-b) 100%); }
+
+  .layer-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .layer-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .layer-icon svg { width: 16px; height: 16px; }
+
+  .layer-title-group {}
+
+  .layer-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.6;
+    margin-bottom: 2px;
+  }
+
+  .layer-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 3px;
+  }
+
+  .layer-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .layer-body {
+    padding: 20px 24px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .cards-row {
+    display: grid;
+    gap: 12px;
+  }
+
+  /* ─── SERVICE CARD ───────────────────────────────── */
+  .service-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .service-card:hover {
+    background: var(--card-hover-bg);
+    border-color: var(--card-border-hover);
+    transform: translateY(-1px);
+  }
+
+  .service-card:hover::before { opacity: 1; }
+
+  .service-card.highlighted {
+    background: var(--card-hl-bg);
+    border-color: var(--card-border-hl);
+    box-shadow: 0 0 20px rgba(59,130,246,0.12);
+  }
+
+  .service-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+  }
+
+  .service-desc {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+
+  .tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .tech-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid;
+    letter-spacing: 0.2px;
+    transition: all 0.2s;
+  }
+
+  .tech-tag:hover {
+    filter: brightness(1.3);
+  }
+
+  /* Layer accent colors */
+  .layer-1 .tech-tag { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3); color: #93c5fd; }
+  .layer-2 .tech-tag { background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.3); color: #c4b5fd; }
+  .layer-3 .tech-tag { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); color: #6ee7b7; }
+  .layer-4 .tech-tag { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #fcd34d; }
+  .layer-5 .tech-tag { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+  .layer-6 .tech-tag { background: rgba(6,182,212,0.12); border-color: rgba(6,182,212,0.3); color: #67e8f9; }
+  .layer-7 .tech-tag { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.3); color: #a5b4fc; }
+
+  .layer-1 .service-card::before { background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan)); }
+  .layer-2 .service-card::before { background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue)); }
+  .layer-3 .service-card::before { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+  .layer-4 .service-card::before { background: linear-gradient(90deg, var(--accent-amber), #f97316); }
+  .layer-5 .service-card::before { background: linear-gradient(90deg, #ef4444, var(--accent-rose)); }
+  .layer-6 .service-card::before { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue)); }
+  .layer-7 .service-card::before { background: linear-gradient(90deg, #6366f1, var(--accent-purple)); }
+
+  /* Light-mode adjustments for tech tags */
+  [data-theme="light"] .layer-1 .tech-tag { background: rgba(37,99,235,0.09); border-color: rgba(37,99,235,0.25); color: #1d4ed8; }
+  [data-theme="light"] .layer-2 .tech-tag { background: rgba(124,58,237,0.09); border-color: rgba(124,58,237,0.25); color: #6d28d9; }
+  [data-theme="light"] .layer-3 .tech-tag { background: rgba(5,150,105,0.09); border-color: rgba(5,150,105,0.25); color: #047857; }
+  [data-theme="light"] .layer-4 .tech-tag { background: rgba(217,119,6,0.1); border-color: rgba(217,119,6,0.25); color: #b45309; }
+  [data-theme="light"] .layer-5 .tech-tag { background: rgba(220,38,38,0.09); border-color: rgba(220,38,38,0.25); color: #b91c1c; }
+  [data-theme="light"] .layer-6 .tech-tag { background: rgba(8,145,178,0.09); border-color: rgba(8,145,178,0.25); color: #0e7490; }
+  [data-theme="light"] .layer-7 .tech-tag { background: rgba(99,102,241,0.09); border-color: rgba(99,102,241,0.25); color: #4338ca; }
+  [data-theme="light"] .fds-layer-1 .tech-tag { background: rgba(99,102,241,0.09); border-color: rgba(99,102,241,0.25); color: #4338ca; }
+  [data-theme="light"] .fds-layer-2 .tech-tag { background: rgba(124,58,237,0.09); border-color: rgba(124,58,237,0.25); color: #6d28d9; }
+  [data-theme="light"] .fds-layer-3 .tech-tag { background: rgba(5,150,105,0.09); border-color: rgba(5,150,105,0.25); color: #047857; }
+  [data-theme="light"] .fds-layer-4 .tech-tag { background: rgba(217,119,6,0.1); border-color: rgba(217,119,6,0.25); color: #b45309; }
+  [data-theme="light"] .fds-layer-5 .tech-tag { background: rgba(220,38,38,0.09); border-color: rgba(220,38,38,0.25); color: #b91c1c; }
+  [data-theme="light"] .fds-layer-6 .tech-tag { background: rgba(8,145,178,0.09); border-color: rgba(8,145,178,0.25); color: #0e7490; }
+  [data-theme="light"] .fds-layer-7 .tech-tag { background: rgba(37,99,235,0.09); border-color: rgba(37,99,235,0.25); color: #1d4ed8; }
+
+  /* Light-mode panel conn dir badges */
+  [data-theme="light"] .panel-conn-dir.up   { background: rgba(5,150,105,0.1); color: #047857; border-color: rgba(5,150,105,0.25); }
+  [data-theme="light"] .panel-conn-dir.down { background: rgba(37,99,235,0.1); color: #1d4ed8; border-color: rgba(37,99,235,0.25); }
+
+  /* Light-mode transition on key elements */
+  [data-theme="light"] header,
+  [data-theme="light"] .sub-header,
+  [data-theme="light"] .fds-subheader { border-bottom-color: rgba(0,0,0,0.1); }
+
+  /* ─── CONNECTOR ARROWS ───────────────────────────── */
+  .layer-connector {
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    margin: -8px 0;
+    position: relative;
+    z-index: 3;
+  }
+
+  .connector-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .connector-line {
+    width: 1.5px;
+    height: 16px;
+    background: linear-gradient(to bottom, transparent, var(--connector-line));
+  }
+
+  .connector-triangle {
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--connector-line);
+  }
+
+  /* ─── DATA FLOW LINES ────────────────────────────── */
+  .data-flow-line {
+    position: fixed;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* ─── RIGHT PANEL ────────────────────────────────── */
+  .panel-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .panel-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 420px;
+    height: 100vh;
+    background: var(--panel-bg);
+    border-left: 1px solid var(--border2);
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .side-panel.open {
+    transform: translateX(0);
+  }
+
+  /* Panel top accent bar */
+  .panel-accent-bar {
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .panel-header {
+    padding: 20px 22px 18px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .panel-header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .panel-close {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--panel-close-bg);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    font-size: 15px;
+    margin-top: 2px;
+  }
+
+  .panel-close:hover {
+    background: var(--panel-close-hover);
+    color: var(--text);
+    border-color: var(--border2);
+  }
+
+  .panel-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .panel-layer-badge {
+    font-size: 10.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.25);
+    color: #93c5fd;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.3px;
+    transition: all 0.3s;
+  }
+
+  .panel-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    color: #6ee7b7;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .panel-status-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 5px #10b981;
+    animation: pulse 2s infinite;
+  }
+
+  /* Panel body scroll */
+  .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .panel-body::-webkit-scrollbar { width: 4px; }
+  .panel-body::-webkit-scrollbar-track { background: transparent; }
+  .panel-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+  /* Panel sections */
+  .panel-section {}
+
+  .panel-section-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .panel-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* Responsibility list */
+  .panel-responsibilities {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .panel-resp-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .panel-resp-bullet {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  /* Tech stack grid */
+  .panel-tech-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .panel-tech-item {
+    background: var(--tech-item-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.15s;
+    cursor: default;
+  }
+
+  .panel-tech-item:hover {
+    background: var(--tech-item-hover);
+    border-color: var(--card-border-hover);
+  }
+
+  .panel-tech-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    flex-shrink: 0;
+    letter-spacing: 0;
+  }
+
+  .panel-tech-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .panel-tech-role {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  /* Metrics row */
+  .panel-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .panel-metric {
+    background: var(--metric-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .panel-metric-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+
+  .panel-metric-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  /* Connections list */
+  .panel-connections {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .panel-conn-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: var(--conn-item-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .panel-conn-dir {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .panel-conn-dir.up { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
+  .panel-conn-dir.down { background: rgba(59,130,246,0.12); color: #93c5fd; border: 1px solid rgba(59,130,246,0.2); }
+
+  .panel-conn-name { color: var(--text); font-weight: 500; }
+  .panel-conn-via { color: var(--text-dim); font-size: 11px; margin-left: auto; }
+
+  /* Panel footer */
+  .panel-footer {
+    padding: 16px 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ─── MODAL (legacy, now unused but kept for reference) */
+  .modal-section-label {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  /* ─── BUTTONS ────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--border2);
+    color: var(--text-muted);
+  }
+
+  .btn-ghost:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .btn-primary {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.4);
+    color: #93c5fd;
+  }
+
+  .btn-primary:hover {
+    background: rgba(59,130,246,0.25);
+  }
+
+  /* ─── SEARCH HIGHLIGHT ───────────────────────────── */
+  .service-card.search-match {
+    border-color: rgba(59,130,246,0.5) !important;
+    background: rgba(59,130,246,0.06) !important;
+  }
+
+  .service-card.search-dimmed {
+    opacity: 0.25;
+  }
+
+  /* ─── ICON LAYER COLORS ──────────────────────────── */
+  .icon-blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+  .icon-purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+  .icon-green { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+  .icon-amber { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
+  .icon-red { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .icon-cyan { background: rgba(6,182,212,0.15); color: var(--accent-cyan); }
+  .icon-indigo { background: rgba(99,102,241,0.15); color: #6366f1; }
+
+  /* ─── SCROLLBAR ──────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* ─── FLOW ANIMATION ──────────────────────────────── */
+  @keyframes flowDot {
+    0% { offset-distance: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; }
+  }
+
+  .flow-particle {
+    position: fixed;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    pointer-events: none;
+    z-index: 60;
+    box-shadow: 0 0 8px var(--accent-blue);
+  }
+
+  /* ─── RESPONSIVE ─────────────────────────────────── */
+  @media (max-width: 768px) {
+    .cards-row { grid-template-columns: 1fr !important; }
+    main { padding: 16px; }
+    .legend { display: none; }
+  }
+
+  /* ─── FDS LAYERS ─────────────────────────────────── */
+  .fds-layer-1 { background: linear-gradient(135deg, var(--fds-layer1-bg-a) 0%, var(--fds-layer1-bg-b) 100%); }
+  .fds-layer-2 { background: linear-gradient(135deg, var(--fds-layer2-bg-a) 0%, var(--fds-layer2-bg-b) 100%); }
+  .fds-layer-3 { background: linear-gradient(135deg, var(--fds-layer3-bg-a) 0%, var(--fds-layer3-bg-b) 100%); }
+  .fds-layer-4 { background: linear-gradient(135deg, var(--fds-layer4-bg-a) 0%, var(--fds-layer4-bg-b) 100%); }
+  .fds-layer-5 { background: linear-gradient(135deg, var(--fds-layer5-bg-a) 0%, var(--fds-layer5-bg-b) 100%); }
+  .fds-layer-6 { background: linear-gradient(135deg, var(--fds-layer6-bg-a) 0%, var(--fds-layer6-bg-b) 100%); }
+  .fds-layer-7 { background: linear-gradient(135deg, var(--fds-layer7-bg-a) 0%, var(--fds-layer7-bg-b) 100%); }
+
+  .fds-layer-1 .tech-tag { background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.3);color:#a5b4fc; }
+  .fds-layer-2 .tech-tag { background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.3);color:#c4b5fd; }
+  .fds-layer-3 .tech-tag { background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3);color:#6ee7b7; }
+  .fds-layer-4 .tech-tag { background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.3);color:#fcd34d; }
+  .fds-layer-5 .tech-tag { background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.3);color:#fca5a5; }
+  .fds-layer-6 .tech-tag { background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.3);color:#67e8f9; }
+  .fds-layer-7 .tech-tag { background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.3);color:#93c5fd; }
+
+  .fds-layer-1 .service-card::before { background:linear-gradient(90deg,#6366f1,#8b5cf6); }
+  .fds-layer-2 .service-card::before { background:linear-gradient(90deg,#8b5cf6,#a78bfa); }
+  .fds-layer-3 .service-card::before { background:linear-gradient(90deg,#10b981,#34d399); }
+  .fds-layer-4 .service-card::before { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+  .fds-layer-5 .service-card::before { background:linear-gradient(90deg,#ef4444,#f87171); }
+  .fds-layer-6 .service-card::before { background:linear-gradient(90deg,#06b6d4,#22d3ee); }
+  .fds-layer-7 .service-card::before { background:linear-gradient(90deg,#3b82f6,#60a5fa); }
+
+  /* FDS sub-header is sticky below main header */
+  .fds-subheader {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 44px;
+    border-bottom: 1px solid var(--border);
+    background: var(--subheader-bg);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 52px;
+    z-index: 99;
+    gap: 16px;
+  }
+
+</style>
+</head>
+<body>
+
+<canvas id="connections-canvas"></canvas>
+<svg id="hover-overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<!-- ── HEADER ───────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#2563eb"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+          <linearGradient id="logoGrad2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+        <!-- Rounded background -->
+        <rect width="34" height="34" rx="9" fill="url(#logoGrad)"/>
+        <!-- Layer stack icon: 3 stacked horizontal bars representing architecture layers -->
+        <!-- Top layer (thinnest) -->
+        <rect x="7" y="8.5" width="20" height="3.5" rx="1.75" fill="white" opacity="1"/>
+        <!-- Mid layer -->
+        <rect x="7" y="15.25" width="20" height="3.5" rx="1.75" fill="white" opacity="0.72"/>
+        <!-- Bottom layer (widest feeling) -->
+        <rect x="7" y="22" width="20" height="3.5" rx="1.75" fill="white" opacity="0.42"/>
+        <!-- Accent dot on top right -->
+        <circle cx="27" cy="10.25" r="2.5" fill="#60a5fa" opacity="0.0"/>
+        <!-- Connecting vertical tick marks on left edge -->
+        <line x1="10" y1="12" x2="10" y2="15.25" stroke="white" stroke-width="1.2" opacity="0.35"/>
+        <line x1="10" y1="18.75" x2="10" y2="22" stroke="white" stroke-width="1.2" opacity="0.25"/>
+      </svg>
+    </div>
+    <div class="logo-name">
+      <span class="logo-name-main">ArchVault</span>
+      <span class="logo-name-sub">Platform Ref</span>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <a class="header-tab active" href="#" id="tab-arch" data-tab="arch">
+      <div class="header-tab-label">System Architecture</div>
+      <div class="header-tab-sub">Full platform overview</div>
+    </a>
+    <a class="header-tab" href="#" id="tab-fds" data-tab="fds">
+      <div class="header-tab-label">Frontend Design System</div>
+      <div class="header-tab-sub">UI layers &amp; components</div>
+    </a>
+  </div>
+  <!-- Theme toggle -->
+  <button id="theme-toggle" aria-label="Toggle theme" style="
+    margin-left: auto;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    padding: 0;
+  ">
+    <!-- Moon icon (shown in dark mode) -->
+    <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+    <!-- Sun icon (shown in light mode) -->
+    <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  </button>
+</header>
+
+<!-- ── SUB-HEADER ────────────────────────────────────── -->
+<div class="sub-header">
+  <div class="layer-count">
+    <div class="layer-count-dot"></div>
+    System Architecture — 7 layers · 33 services
+  </div>
+  <div class="search-box">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search-input" placeholder="Search services, tech stack, layers…">
+  </div>
+  <button class="data-flows-btn" id="data-flows-btn" aria-pressed="false">
+    <svg class="df-icon df-icon-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+    <svg class="df-icon df-icon-off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+    <span class="df-label">Data Flows</span>
+  </button>
+  <div class="legend">
+    <span style="font-size:11px">Legend:</span>
+    <div class="legend-dot" style="background:#3b82f6"></div>
+    <div class="legend-dot" style="background:#8b5cf6"></div>
+    <div class="legend-dot" style="background:#10b981"></div>
+    <div class="legend-dot" style="background:#f59e0b"></div>
+    <div class="legend-dot" style="background:#ef4444"></div>
+    <div class="legend-dot" style="background:#06b6d4"></div>
+    <div class="legend-dot" style="background:#6366f1; width:6px; height:6px; border-radius:2px;"></div>
+  </div>
+</div>
+
+<!-- ── MAIN ───────────────────────────────────────────── -->
+<div id="view-arch">
+<main id="main-content">
+
+  <!-- ── LAYER 1: CLIENT ─────────────────────────────── -->
+  <section class="layer layer-1" data-layer="1">
+    <div class="layer-header">
+      <div class="layer-icon icon-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+        </svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#3b82f6">1. CLIENT LAYER</div>
+        <div class="layer-title">Client Layer</div>
+        <div class="layer-desc">Multi-channel user interfaces for different user personas.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns: repeat(4, 1fr)">
+        <div class="service-card" data-name="Web Portal" data-layer="Client Layer" data-desc="Responsive SPA for retail clients to view portfolios and execute trades. Built with React and TypeScript for type-safe, maintainable code. Tailwind CSS ensures consistent styling across components." data-tags="React,TypeScript,Tailwind">
+          <div class="service-name">Web Portal</div>
+          <div class="service-desc">Responsive SPA for retail clients to view portfolios and execute trades.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">React</span>
+            <span class="tech-tag">TypeScript</span>
+            <span class="tech-tag">Tailwind</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Mobile App" data-layer="Client Layer" data-desc="Native application for on-the-go portfolio monitoring and alerts. Leverages React Native for cross-platform support with Swift and Kotlin for native modules." data-tags="React Native,Swift,Kotlin">
+          <div class="service-name">Mobile App</div>
+          <div class="service-desc">Native application for on-the-go portfolio monitoring and alerts.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">React Native</span>
+            <span class="tech-tag">Swift</span>
+            <span class="tech-tag">Kotlin</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Advisor Dashboard" data-layer="Client Layer" data-desc="Complex terminal for wealth managers managing multiple client portfolios. Features real-time analytics powered by AG Grid and D3.js visualizations." data-tags="Angular,RxJS,AG Grid">
+          <div class="service-name">Advisor Dashboard</div>
+          <div class="service-desc">Complex terminal for wealth managers managing multiple client portfolios.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Angular</span>
+            <span class="tech-tag">RxJS</span>
+            <span class="tech-tag">AG Grid</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Institutional Portal" data-layer="Client Layer" data-desc="High-density data portal for institutional investors with advanced analytics, bulk order management, and real-time WebSocket feeds." data-tags="React,D3.js,WebSockets">
+          <div class="service-name">Institutional Portal</div>
+          <div class="service-desc">High-density data portal for institutional investors with advanced analytics.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">React</span>
+            <span class="tech-tag">D3.js</span>
+            <span class="tech-tag">WebSockets</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- ── LAYER 2: API GATEWAY ─────────────────────────── -->
+  <section class="layer layer-2" data-layer="2">
+    <div class="layer-header">
+      <div class="layer-icon icon-purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#8b5cf6">2. API GATEWAY & SECURITY</div>
+        <div class="layer-title">API Gateway &amp; Security</div>
+        <div class="layer-desc">Secure entry point and routing layer for all incoming requests.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns: repeat(4, 1fr)">
+        <div class="service-card" data-name="WAF" data-layer="API Gateway & Security" data-desc="Web Application Firewall protecting against OWASP top 10 and DDoS attacks. Deployed via AWS WAF with CloudFlare CDN for global edge protection." data-tags="AWS WAF,CloudFlare">
+          <div class="service-name">WAF</div>
+          <div class="service-desc">Web Application Firewall protecting against OWASP top 10 and DDoS.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">AWS WAF</span>
+            <span class="tech-tag">CloudFlare</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="API Gateway" data-layer="API Gateway & Security" data-desc="Routes requests, handles SSL termination, and aggregates microservice responses. Kong manages rate limiting and plugins while Nginx serves as reverse proxy. GraphQL federation handled here." data-tags="Kong,Nginx,GraphQL">
+          <div class="service-name">API Gateway</div>
+          <div class="service-desc">Routes requests, handles SSL termination, and aggregates microservice responses.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Kong</span>
+            <span class="tech-tag">Nginx</span>
+            <span class="tech-tag">GraphQL</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Identity (OAuth 2.0)" data-layer="API Gateway & Security" data-desc="Handles authentication, authorization, and SSO via OpenID Connect. Okta provides identity management, KeyCloak for internal services, and JWT for stateless token validation." data-tags="Okta,KeyCloak,JWT">
+          <div class="service-name">Identity (OAuth 2.0)</div>
+          <div class="service-desc">Handles authentication, authorization, and SSO via OpenID Connect.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Okta</span>
+            <span class="tech-tag">KeyCloak</span>
+            <span class="tech-tag">JWT</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Rate Limiter" data-layer="API Gateway & Security" data-desc="Throttles incoming requests to protect downstream services from overload. Redis stores rate limit counters with sliding window algorithm. Envoy proxy handles circuit breaking." data-tags="Redis,Envoy">
+          <div class="service-name">Rate Limiter</div>
+          <div class="service-desc">Throttles incoming requests to protect downstream services.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Redis</span>
+            <span class="tech-tag">Envoy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- ── LAYER 3: CORE MICROSERVICES ─────────────────── -->
+  <section class="layer layer-3" data-layer="3">
+    <div class="layer-header">
+      <div class="layer-icon icon-green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+        </svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#10b981">3. CORE MICROSERVICES</div>
+        <div class="layer-title">Core Microservices</div>
+        <div class="layer-desc">Business logic and domain services handling wealth management operations.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns: repeat(5, 1fr)">
+        <div class="service-card" data-name="Portfolio Management" data-layer="Core Microservices" data-desc="Maintains current positions, asset allocations, and rebalancing logic. Built with Java and Spring Boot for high reliability. gRPC enables low-latency inter-service communication." data-tags="Java,Spring Boot,gRPC">
+          <div class="service-name">Portfolio Management</div>
+          <div class="service-desc">Maintains current positions, asset allocations, and rebalancing logic.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Java</span>
+            <span class="tech-tag">Spring Boot</span>
+            <span class="tech-tag">gRPC</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Wealth Analytics" data-layer="Core Microservices" data-desc="Calculates performance metrics, attribution, and risk-adjusted returns. Python with Apache Spark for distributed computation. Pandas for data manipulation and feature engineering." data-tags="Python,Apache Spark,Pandas">
+          <div class="service-name">Wealth Analytics</div>
+          <div class="service-desc">Calculates performance metrics, attribution, and risk-adjusted returns.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">Apache Spark</span>
+            <span class="tech-tag">Pandas</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Order Management" data-layer="Core Microservices" data-desc="Routes orders to execution venues, handles FIX protocol, and manages trade lifecycle. C++ for performance-critical execution paths with ZeroMQ messaging." data-tags="C++,FIX API,ZeroMQ">
+          <div class="service-name">Order Management</div>
+          <div class="service-desc">Routes orders to execution venues, handles FIX protocol, and manages trades.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">C++</span>
+            <span class="tech-tag">FIX API</span>
+            <span class="tech-tag">ZeroMQ</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Risk Assessment" data-layer="Core Microservices" data-desc="Computes Value at Risk (VaR), runs stress tests, and monitors exposure limits. Python for financial models, C++ for performance, CUDA for GPU-accelerated Monte Carlo simulations." data-tags="Python,C++,CUDA">
+          <div class="service-name">Risk Assessment</div>
+          <div class="service-desc">Computes Value at Risk (VaR), runs stress tests, and monitors exposure.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">C++</span>
+            <span class="tech-tag">CUDA</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Client Management" data-layer="Core Microservices" data-desc="Manages client profiles, KYC/AML status, and onboarding workflows. Node.js with Express for REST APIs. PostgreSQL for ACID-compliant client data storage." data-tags="Node.js,Express,PostgreSQL">
+          <div class="service-name">Client Management</div>
+          <div class="service-desc">Manages client profiles, KYC/AML status, and onboarding workflows.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Node.js</span>
+            <span class="tech-tag">Express</span>
+            <span class="tech-tag">PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+      <div class="cards-row" style="grid-template-columns: repeat(3, 1fr)">
+        <div class="service-card" data-name="Reporting Service" data-layer="Core Microservices" data-desc="Generates periodic PDF statements, tax documents, and regulatory filings. Go for high-performance PDF generation with Puppeteer. S3 for document storage and delivery." data-tags="Go,Puppeteer,S3">
+          <div class="service-name">Reporting Service</div>
+          <div class="service-desc">Generates periodic PDF statements, tax documents, and regulatory filings.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Go</span>
+            <span class="tech-tag">Puppeteer</span>
+            <span class="tech-tag">S3</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Fee Engine" data-layer="Core Microservices" data-desc="Calculates AUM-based management fees and high-water mark performance fees. Java with Spring Batch for scheduled batch processing and fee accrual computation." data-tags="Java,Spring Batch">
+          <div class="service-name">Fee Engine</div>
+          <div class="service-desc">Calculates AUM-based management fees and high-water mark performance fees.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Java</span>
+            <span class="tech-tag">Spring Batch</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Notification Service" data-layer="Core Microservices" data-desc="Dispatches alerts, margin calls, and systemic events via Email/SMS/Push notifications. Node.js with SendGrid for email and Twilio for SMS delivery." data-tags="Node.js,SendGrid,Twilio">
+          <div class="service-name">Notification Service</div>
+          <div class="service-desc">Dispatches alerts, margin calls, and systemic events via Email/SMS/Push.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Node.js</span>
+            <span class="tech-tag">SendGrid</span>
+            <span class="tech-tag">Twilio</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- ── LAYER 4: DATA & MESSAGING ───────────────────── -->
+  <section class="layer layer-4" data-layer="4">
+    <div class="layer-header">
+      <div class="layer-icon icon-amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#f59e0b">4. DATA & MESSAGING</div>
+        <div class="layer-title">Data &amp; Messaging</div>
+        <div class="layer-desc">High-throughput asynchronous communication and fast caching.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns: repeat(3, 1fr)">
+        <div class="service-card" data-name="Event Bus (Kafka)" data-layer="Data & Messaging" data-desc="Distributed streaming platform for decoupled microservice communication. Apache Kafka provides durable, ordered message delivery with consumer groups. Zookeeper manages cluster coordination." data-tags="Apache Kafka,Zookeeper">
+          <div class="service-name">Event Bus (Kafka)</div>
+          <div class="service-desc">Distributed streaming platform for decoupled microservice communication.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Apache Kafka</span>
+            <span class="tech-tag">Zookeeper</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Cache Layer" data-layer="Data & Messaging" data-desc="In-memory data structure store used for caching market data and session information. Redis Cluster provides high availability with automatic sharding and failover." data-tags="Redis Cluster">
+          <div class="service-name">Cache Layer</div>
+          <div class="service-desc">In-memory data structure store used for caching market data and sessions.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Redis Cluster</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Search Index" data-layer="Data & Messaging" data-desc="Full-text search engine for rapid querying of trades, instruments, and client records. ElasticSearch with Logstash pipeline for ingesting and indexing financial data." data-tags="ElasticSearch,Logstash">
+          <div class="service-name">Search Index</div>
+          <div class="service-desc">Full-text search engine for rapid querying of trades and instruments.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">ElasticSearch</span>
+            <span class="tech-tag">Logstash</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- ── LAYER 5: DATA STORAGE ─────────────────────── -->
+  <section class="layer layer-5" data-layer="5">
+    <div class="layer-header">
+      <div class="layer-icon icon-red">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+        </svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#ef4444">5. DATA STORAGE</div>
+        <div class="layer-title">Data Storage</div>
+        <div class="layer-desc">Persistent source of truth across relational, document, and time-series models.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns: repeat(5, 1fr)">
+        <div class="service-card" data-name="Portfolio DB" data-layer="Data Storage" data-desc="Transactional store for accounts, positions, and trade history. PostgreSQL with Aurora for multi-region replication and automatic failover. ACID compliance ensures financial data integrity." data-tags="PostgreSQL,Aurora">
+          <div class="service-name">Portfolio DB</div>
+          <div class="service-desc">Transactional store for accounts, positions, and trade history.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">PostgreSQL</span>
+            <span class="tech-tag">Aurora</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Client DB" data-layer="Data Storage" data-desc="Relational store for user profiles, permissions, and audit logs. PostgreSQL with row-level security for multi-tenant isolation. Full audit trail for compliance." data-tags="PostgreSQL">
+          <div class="service-name">Client DB</div>
+          <div class="service-desc">Relational store for user profiles, permissions, and audit logs.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">PostgreSQL</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Market Data DB" data-layer="Data Storage" data-desc="High-ingest time-series database for tick data and end-of-day prices. InfluxDB for real-time market data, TimescaleDB for complex SQL queries over time-series." data-tags="InfluxDB,TimescaleDB">
+          <div class="service-name">Market Data DB</div>
+          <div class="service-desc">High-ingest time-series database for tick data and end-of-day prices.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">InfluxDB</span>
+            <span class="tech-tag">TimescaleDB</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Document Store" data-layer="Data Storage" data-desc="NoSQL storage for unstructured data like generated PDFs and JSON documents. MongoDB for flexible schema storage, DocumentDB for AWS-native managed service." data-tags="MongoDB,DocumentDB">
+          <div class="service-name">Document Store</div>
+          <div class="service-desc">NoSQL storage for unstructured data like generated PDFs and JSON.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">MongoDB</span>
+            <span class="tech-tag">DocumentDB</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Data Warehouse" data-layer="Data Storage" data-desc="Analytical storage for BI, reporting, and historical trend analysis. Snowflake for cloud-native columnar storage with dbt for data transformation and modeling." data-tags="Snowflake,dbt">
+          <div class="service-name">Data Warehouse</div>
+          <div class="service-desc">Analytical storage for BI, reporting, and historical trend analysis.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Snowflake</span>
+            <span class="tech-tag">dbt</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- ── LAYER 6: EXTERNAL INTEGRATIONS ─────────────── -->
+  <section class="layer layer-6" data-layer="6">
+    <div class="layer-header">
+      <div class="layer-icon icon-cyan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#06b6d4">6. EXTERNAL INTEGRATIONS</div>
+        <div class="layer-title">External Integrations</div>
+        <div class="layer-desc">Third-party services, data providers, and regulatory endpoints.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns: repeat(5, 1fr)">
+        <div class="service-card" data-name="Market Providers" data-layer="External Integrations" data-desc="Real-time feeds for equity, fixed income, and FX pricing. Bloomberg Terminal API for institutional data, Refinitiv for news analytics, WebSocket for streaming tick data." data-tags="Bloomberg,Refinitiv,WebSocket">
+          <div class="service-name">Market Providers</div>
+          <div class="service-desc">Real-time feeds for equity, fixed income, and FX pricing.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Bloomberg</span>
+            <span class="tech-tag">Refinitiv</span>
+            <span class="tech-tag">WebSocket</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Custodian Banks" data-layer="External Integrations" data-desc="Endpoints for prime brokers holding actual assets and executing clearing. DTC for US securities settlement, Euroclear and SWIFT for international transfer." data-tags="DTC,Euroclear,SWIFT">
+          <div class="service-name">Custodian Banks</div>
+          <div class="service-desc">Endpoints for prime brokers holding actual assets and executing clearing.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">DTC</span>
+            <span class="tech-tag">Euroclear</span>
+            <span class="tech-tag">SWIFT</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Regulatory APIs" data-layer="External Integrations" data-desc="Automated reporting endpoints for SEC, FINRA, and MiFID II compliance. REST and SOAP for legacy systems, XML for structured regulatory data submissions." data-tags="REST,SOAP,XML">
+          <div class="service-name">Regulatory APIs</div>
+          <div class="service-desc">Automated reporting endpoints for SEC, FINRA, and MiFID II compliance.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">REST</span>
+            <span class="tech-tag">SOAP</span>
+            <span class="tech-tag">XML</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Payment Networks" data-layer="External Integrations" data-desc="Rails for fiat money movement, deposits, and withdrawals. ACH for domestic transfers, FedWire for large value settlements, Plaid for bank account linking." data-tags="ACH,FedWire,Plaid">
+          <div class="service-name">Payment Networks</div>
+          <div class="service-desc">Rails for fiat money movement, deposits, and withdrawals.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">ACH</span>
+            <span class="tech-tag">FedWire</span>
+            <span class="tech-tag">Plaid</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Rating Agencies" data-layer="External Integrations" data-desc="Credit rating ingestion for fixed income portfolio risk analysis. Moody's API for credit ratings, S&P API for company financials and bond ratings." data-tags="Moody's,S&P API">
+          <div class="service-name">Rating Agencies</div>
+          <div class="service-desc">Credit rating ingestion for fixed income portfolio risk analysis.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Moody's</span>
+            <span class="tech-tag">S&P API</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- ── LAYER 7: INFRASTRUCTURE ─────────────────────── -->
+  <section class="layer layer-7" data-layer="7">
+    <div class="layer-header">
+      <div class="layer-icon icon-indigo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>
+        </svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#6366f1">7. INFRASTRUCTURE & OBSERVABILITY</div>
+        <div class="layer-title">Infrastructure &amp; Observability</div>
+        <div class="layer-desc">Underlying cloud resources and system monitoring stack.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns: repeat(4, 1fr)">
+        <div class="service-card" data-name="Cloud Infra" data-layer="Infrastructure & Observability" data-desc="Multi-region active-active deployment for high availability. AWS as primary cloud provider, Kubernetes for container orchestration, Terraform for infrastructure as code." data-tags="AWS,Kubernetes,Terraform">
+          <div class="service-name">Cloud Infra</div>
+          <div class="service-desc">Multi-region active-active deployment for high availability.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">AWS</span>
+            <span class="tech-tag">Kubernetes</span>
+            <span class="tech-tag">Terraform</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="CI/CD Pipeline" data-layer="Infrastructure & Observability" data-desc="Automated testing, security scanning, and deployment automation. GitLab CI for pipelines, ArgoCD for GitOps deployments, SonarQube for code quality gates." data-tags="GitLab CI,ArgoCD,SonarQube">
+          <div class="service-name">CI/CD Pipeline</div>
+          <div class="service-desc">Automated testing, security scanning, and deployment automation.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">GitLab CI</span>
+            <span class="tech-tag">ArgoCD</span>
+            <span class="tech-tag">SonarQube</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Monitoring" data-layer="Infrastructure & Observability" data-desc="Metrics collection and dashboarding for system health. Prometheus for metrics scraping and alerting, Grafana for visualization and dashboards, Datadog for APM." data-tags="Prometheus,Grafana,Datadog">
+          <div class="service-name">Monitoring</div>
+          <div class="service-desc">Metrics collection and dashboarding for system health.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">Prometheus</span>
+            <span class="tech-tag">Grafana</span>
+            <span class="tech-tag">Datadog</span>
+          </div>
+        </div>
+        <div class="service-card" data-name="Logging" data-layer="Infrastructure & Observability" data-desc="Centralized logging and trace aggregation for debugging. ELK Stack for log aggregation and search, Splunk for SIEM and security event correlation, OpenTelemetry for distributed tracing." data-tags="ELK Stack,Splunk,OpenTelemetry">
+          <div class="service-name">Logging</div>
+          <div class="service-desc">Centralized logging and trace aggregation for debugging.</div>
+          <div class="tech-tags">
+            <span class="tech-tag">ELK Stack</span>
+            <span class="tech-tag">Splunk</span>
+            <span class="tech-tag">OpenTelemetry</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div><!-- /view-arch -->
+
+<!-- ── FDS VIEW ─────────────────────────────────────── -->
+<div id="view-fds" style="display:none">
+<div class="fds-subheader" id="fds-subheader">
+  <div class="layer-count">
+    <div class="layer-count-dot" style="background:#a78bfa;box-shadow:0 0 6px #8b5cf6"></div>
+    Frontend Design System — 7 layers · 38 components
+  </div>
+  <div class="search-box">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="fds-search-input" placeholder="Search components, patterns, tech stack…">
+  </div>
+  <button class="data-flows-btn" id="fds-data-flows-btn" aria-pressed="false" style="border-color:rgba(139,92,246,0.3);color:#c4b5fd;background:rgba(139,92,246,0.12)">
+    <svg class="df-icon df-icon-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+    <svg class="df-icon df-icon-off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+    <span class="df-label">Data Flows</span>
+  </button>
+  <div class="legend">
+    <span style="font-size:11px">Legend:</span>
+    <div class="legend-dot" style="background:#6366f1"></div>
+    <div class="legend-dot" style="background:#8b5cf6"></div>
+    <div class="legend-dot" style="background:#10b981"></div>
+    <div class="legend-dot" style="background:#f59e0b"></div>
+    <div class="legend-dot" style="background:#ef4444"></div>
+    <div class="legend-dot" style="background:#06b6d4"></div>
+    <div class="legend-dot" style="background:#3b82f6; width:6px;height:6px;border-radius:2px"></div>
+  </div>
+</div>
+<main id="fds-content">
+
+  <!-- FDS LAYER 1: DESIGN TOKEN SYSTEM -->
+  <section class="layer fds-layer-1" data-layer="fds-1">
+    <div class="layer-header">
+      <div class="layer-icon" style="background:rgba(99,102,241,0.15);color:#6366f1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#6366f1">1. DESIGN TOKEN SYSTEM</div>
+        <div class="layer-title">Design Token System</div>
+        <div class="layer-desc">The single source of truth for all visual decisions — consumed by every layer above.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns:repeat(5,1fr)">
+        <div class="service-card" data-name="Color Tokens" data-layer="Design Token System" data-desc="Semantic color primitives for brand, surface, text, status, and data visualisation. All colors are defined as CSS Custom Properties and synced to Figma via Style Dictionary for single-source management." data-tags="CSS Custom Properties,Style Dictionary,Figma Tokens">
+          <div class="service-name">Color Tokens</div>
+          <div class="service-desc">Semantic color primitives for brand, surface, text, status, and data.</div>
+          <div class="tech-tags"><span class="tech-tag">CSS Custom Properties</span><span class="tech-tag">Style Dictionary</span><span class="tech-tag">Figma Tokens</span></div>
+        </div>
+        <div class="service-card" data-name="Typography Tokens" data-layer="Design Token System" data-desc="Font families, weights, sizes, line-heights, and letter-spacing scales for every text role in the UI. Fluid Type Scale ensures proportional sizing across all screen breakpoints." data-tags="Inter,CSS Variables,Fluid Type Scale">
+          <div class="service-name">Typography Tokens</div>
+          <div class="service-desc">Font families, weights, sizes, line-heights, and letter-spacing scales.</div>
+          <div class="tech-tags"><span class="tech-tag">Inter</span><span class="tech-tag">CSS Variables</span><span class="tech-tag">Fluid Type Scale</span></div>
+        </div>
+        <div class="service-card" data-name="Spacing & Layout Tokens" data-layer="Design Token System" data-desc="4px-base spacing scale, breakpoint grid, container widths, and z-index hierarchy. Tailwind CSS Grid and Flexbox utilities built on top of these baseline token values." data-tags="Tailwind,CSS Grid,Flexbox">
+          <div class="service-name">Spacing &amp; Layout Tokens</div>
+          <div class="service-desc">4px-base spacing scale, breakpoint grid, container widths, and z-index hierarchy.</div>
+          <div class="tech-tags"><span class="tech-tag">Tailwind</span><span class="tech-tag">CSS Grid</span><span class="tech-tag">Flexbox</span></div>
+        </div>
+        <div class="service-card" data-name="Motion & Animation Tokens" data-layer="Design Token System" data-desc="Standardised easing curves, duration steps, and transition presets for consistent motion language across all interactive components. Built on Framer Motion and CSS Transitions." data-tags="Framer Motion,CSS Transitions,GSAP">
+          <div class="service-name">Motion &amp; Animation Tokens</div>
+          <div class="service-desc">Standardised easing curves, duration steps, and transition presets.</div>
+          <div class="tech-tags"><span class="tech-tag">Framer Motion</span><span class="tech-tag">CSS Transitions</span><span class="tech-tag">GSAP</span></div>
+        </div>
+        <div class="service-card" data-name="Shadow & Elevation Tokens" data-layer="Design Token System" data-desc="Layered shadow system (2xs–2xl) communicating depth and hierarchy across card and panel surfaces. Defined as CSS Box-Shadow tokens and mapped to Tailwind elevation utilities." data-tags="CSS Box-Shadow,Tailwind">
+          <div class="service-name">Shadow &amp; Elevation Tokens</div>
+          <div class="service-desc">Layered shadow system communicating depth and hierarchy across surfaces.</div>
+          <div class="tech-tags"><span class="tech-tag">CSS Box-Shadow</span><span class="tech-tag">Tailwind</span></div>
+        </div>
+      </div>
+      <div class="cards-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="service-card" data-name="Theme Engine" data-layer="Design Token System" data-desc="Runtime theme switching — light/dark/high-contrast and white-label brand themes. CSS Custom Properties with JavaScript theme manager. Radix Colors provides accessible, perceptually uniform color scales." data-tags="CSS Custom Properties,next-themes,Radix Colors">
+          <div class="service-name">Theme Engine</div>
+          <div class="service-desc">Runtime theme switching — light/dark/high-contrast and white-label brands.</div>
+          <div class="tech-tags"><span class="tech-tag">CSS Custom Properties</span><span class="tech-tag">next-themes</span><span class="tech-tag">Radix Colors</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- FDS LAYER 2: ACCESSIBILITY & STANDARDS -->
+  <section class="layer fds-layer-2" data-layer="fds-2">
+    <div class="layer-header">
+      <div class="layer-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#8b5cf6">2. ACCESSIBILITY & STANDARDS</div>
+        <div class="layer-title">Accessibility &amp; Standards</div>
+        <div class="layer-desc">WCAG 2.1 AA compliance baked into every component and interaction pattern.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="service-card" data-name="WCAG 2.1 AA Compliance" data-layer="Accessibility & Standards" data-desc="Contrast ratios ≥4.5:1, reflow at 320px, no flashing content, and cognitive load guidelines enforced in CI. axe-core and jest-axe run accessibility checks on every component in the test suite." data-tags="axe-core,jest-axe,Storybook A11y">
+          <div class="service-name">WCAG 2.1 AA Compliance</div>
+          <div class="service-desc">Contrast ratios ≥4.5:1, reflow at 320px, no flashing content guidelines.</div>
+          <div class="tech-tags"><span class="tech-tag">axe-core</span><span class="tech-tag">jest-axe</span><span class="tech-tag">Storybook A11y</span></div>
+        </div>
+        <div class="service-card" data-name="ARIA Patterns Library" data-layer="Accessibility & Standards" data-desc="Semantic roles, live regions, focus management, and keyboard navigation for all interactive components. Built on WAI-ARIA 1.2 patterns and validated against NVDA and VoiceOver screen readers." data-tags="Radix UI,React Aria,WAI-ARIA 1.2">
+          <div class="service-name">ARIA Patterns Library</div>
+          <div class="service-desc">Semantic roles, live regions, focus management, and keyboard navigation.</div>
+          <div class="tech-tags"><span class="tech-tag">Radix UI</span><span class="tech-tag">React Aria</span><span class="tech-tag">WAI-ARIA 1.2</span></div>
+        </div>
+        <div class="service-card" data-name="Internationalisation (i18n)" data-layer="Accessibility & Standards" data-desc="RTL layout support, locale-aware number/currency/date formatting, and multi-language message catalogs. i18next with ICU message format for complex pluralisation and interpolation rules." data-tags="i18next,ICU,FormatJS">
+          <div class="service-name">Internationalisation (i18n)</div>
+          <div class="service-desc">RTL layout support, locale-aware formatting, and multi-language catalogs.</div>
+          <div class="tech-tags"><span class="tech-tag">i18next</span><span class="tech-tag">ICU</span><span class="tech-tag">FormatJS</span></div>
+        </div>
+        <div class="service-card" data-name="Automated A11y Testing" data-layer="Accessibility & Standards" data-desc="CI-gated accessibility audits blocking PRs that regress contrast, focus order, or ARIA attributes. Playwright accessibility snapshots diff against baseline for regression detection." data-tags="axe-core,Playwright,Lighthouse CI">
+          <div class="service-name">Automated A11y Testing</div>
+          <div class="service-desc">CI-gated accessibility audits blocking PRs that regress contrast or focus order.</div>
+          <div class="tech-tags"><span class="tech-tag">axe-core</span><span class="tech-tag">Playwright</span><span class="tech-tag">Lighthouse CI</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- FDS LAYER 3: REUSABLE UI COMPONENT LIBRARY -->
+  <section class="layer fds-layer-3" data-layer="fds-3">
+    <div class="layer-header">
+      <div class="layer-icon" style="background:rgba(16,185,129,0.15);color:#10b981">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#10b981">3. REUSABLE UI COMPONENT LIBRARY</div>
+        <div class="layer-title">Reusable UI Component Library</div>
+        <div class="layer-desc">Financial-grade, accessible, composable components — the building blocks for every frontend application.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns:repeat(5,1fr)">
+        <div class="service-card" data-name="Primitive Components" data-layer="UI Component Library" data-desc="Button, Input, Select, Checkbox, Radio, Switch, Badge, Avatar, Tooltip, Popover — 40+ headless primitives built on Radix UI with full keyboard support and customisable via class-variance-authority." data-tags="Radix UI,cva,Tailwind">
+          <div class="service-name">Primitive Components</div>
+          <div class="service-desc">Button, Input, Select, Checkbox, Radio — 40+ headless primitives.</div>
+          <div class="tech-tags"><span class="tech-tag">Radix UI</span><span class="tech-tag">cva</span><span class="tech-tag">Tailwind</span></div>
+        </div>
+        <div class="service-card" data-name="Data Display Components" data-layer="UI Component Library" data-desc="Card, Table, AG Grid, Financial Chart, Sparkline, Heatmap, and TreeMap components optimised for dense financial data. Server-side rendering compatible with skeleton loading states." data-tags="AG Grid,Recharts,Headless UI">
+          <div class="service-name">Data Display Components</div>
+          <div class="service-desc">Card, Table, Grid, Chart — optimised for dense financial data display.</div>
+          <div class="tech-tags"><span class="tech-tag">AG Grid</span><span class="tech-tag">Recharts</span><span class="tech-tag">Headless UI</span></div>
+        </div>
+        <div class="service-card" data-name="Form Components" data-layer="UI Component Library" data-desc="Form Token, Account Opening Wizard, KYC Upload, and complex multi-step financial forms with built-in validation. React Hook Form with Zod schema validation for type-safe form handling." data-tags="React Hook Form,Zod,React Final Form">
+          <div class="service-name">Form Components</div>
+          <div class="service-desc">Form Token, Account Opening Wizard, KYC Upload, and multi-step forms.</div>
+          <div class="tech-tags"><span class="tech-tag">React Hook Form</span><span class="tech-tag">Zod</span><span class="tech-tag">React Final Form</span></div>
+        </div>
+        <div class="service-card" data-name="Layout Components" data-layer="UI Component Library" data-desc="Dashboard Grid, Sidebar, Drawer, Container, Splitter, and responsive Mosaic layout for complex financial terminal layouts. Built with CSS Grid and Flexbox for maximum adaptability." data-tags="CSS Grid,Flexbox,React Mosaic">
+          <div class="service-name">Layout Components</div>
+          <div class="service-desc">Dashboard Grid, Sidebar, Drawer, Splitter for terminal layouts.</div>
+          <div class="tech-tags"><span class="tech-tag">CSS Grid</span><span class="tech-tag">Flexbox</span><span class="tech-tag">React Mosaic</span></div>
+        </div>
+        <div class="service-card" data-name="Feedback & Status" data-layer="UI Component Library" data-desc="Toast, Alert Banner, Progress, Skeleton Loader, Error Boundary, and Inline validation for communicating system state. React Error Boundary wraps all async data-fetching components." data-tags="Sonner,Radix UI,React Error Boundary">
+          <div class="service-name">Feedback &amp; Status</div>
+          <div class="service-desc">Toast, Alert Banner, Progress, Skeleton Loader, Error Boundary.</div>
+          <div class="tech-tags"><span class="tech-tag">Sonner</span><span class="tech-tag">Radix UI</span><span class="tech-tag">React Error Boundary</span></div>
+        </div>
+      </div>
+      <div class="cards-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="service-card" data-name="Navigation Components" data-layer="UI Component Library" data-desc="App Shell, Tab Bar, Breadcrumb, Command Palette, and Context Menu for application navigation. Built on Radix UI primitives with React Router integration and keyboard shortcut management." data-tags="Radix UI,Router,cmdk">
+          <div class="service-name">Navigation Components</div>
+          <div class="service-desc">App Shell, Tab Bar, Breadcrumb, Command Palette, and Context Menu.</div>
+          <div class="tech-tags"><span class="tech-tag">Radix UI</span><span class="tech-tag">Router</span><span class="tech-tag">cmdk</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- FDS LAYER 4: COMPONENT CATALOGUE & DOCUMENTATION -->
+  <section class="layer fds-layer-4" data-layer="fds-4">
+    <div class="layer-header">
+      <div class="layer-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#f59e0b">4. COMPONENT CATALOGUE & DOCUMENTATION</div>
+        <div class="layer-title">Component Catalogue &amp; Documentation</div>
+        <div class="layer-desc">Living documentation and isolated development environment for every component and pattern.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="service-card" data-name="Storybook" data-layer="Component Catalogue" data-desc="Interactive component explorer with every variant, state, and prop combination documented. Stories serve as living specifications and are published as a static site exposed as a public design reference." data-tags="Storybook,MDX,CSF 3">
+          <div class="service-name">Storybook</div>
+          <div class="service-desc">Interactive component explorer with every variant, state, and prop documented.</div>
+          <div class="tech-tags"><span class="tech-tag">Storybook</span><span class="tech-tag">MDX</span><span class="tech-tag">CSF 3</span></div>
+        </div>
+        <div class="service-card" data-name="Figma Design Library" data-layer="Component Catalogue" data-desc="Pixel-perfect component variants connected to design tokens via Figma Tokens Studio. A two-way sync pipeline keeps code and design in sync. Includes comprehensive design guidelines." data-tags="Figma,Tokens Studio,Auto Layout">
+          <div class="service-name">Figma Design Library</div>
+          <div class="service-desc">Pixel-perfect component variants connected to design tokens via Tokens Studio.</div>
+          <div class="tech-tags"><span class="tech-tag">Figma</span><span class="tech-tag">Tokens Studio</span><span class="tech-tag">Auto Layout</span></div>
+        </div>
+        <div class="service-card" data-name="Visual Regression (Chromatic)" data-layer="Component Catalogue" data-desc="Baseline-based visual diff testing that blocks PRs introducing unintended UI changes at pixel level. Chromatic runs on every PR branch and notifies designers for review via Slack integration." data-tags="Chromatic,Storybook,Playwright">
+          <div class="service-name">Visual Regression (Chromatic)</div>
+          <div class="service-desc">Baseline-based visual diffs blocking PRs with unintended UI changes.</div>
+          <div class="tech-tags"><span class="tech-tag">Chromatic</span><span class="tech-tag">Storybook</span><span class="tech-tag">Playwright</span></div>
+        </div>
+        <div class="service-card" data-name="UX Patterns Guidelines" data-layer="Component Catalogue" data-desc="Interaction playbooks, content guidelines, cognitive contrast principles, and financial data formatting conventions. Published as Notion docs with embedded Figma and Storybook embeds." data-tags="Notion,Co-Authoring,MFE">
+          <div class="service-name">UX Patterns Guidelines</div>
+          <div class="service-desc">Interaction playbooks, content guidelines, and data formatting conventions.</div>
+          <div class="tech-tags"><span class="tech-tag">Notion</span><span class="tech-tag">Co-Authoring</span><span class="tech-tag">MFE</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- FDS LAYER 5: FRONTEND APPLICATION LAYER -->
+  <section class="layer fds-layer-5" data-layer="fds-5">
+    <div class="layer-header">
+      <div class="layer-icon" style="background:rgba(239,68,68,0.15);color:#ef4444">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#ef4444">5. FRONTEND APPLICATION LAYER</div>
+        <div class="layer-title">Frontend Application Layer</div>
+        <div class="layer-desc">Modular micro-frontend applications consuming the design system, each independently deployable.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns:repeat(5,1fr)">
+        <div class="service-card" data-name="Wealth Dashboard MFE" data-layer="Frontend Application Layer" data-desc="Retail-facing portfolio overview with real-time P&L, asset allocation charts, and recent transaction history. Built as an independently deployed React MFE consumed via Module Federation." data-tags="React,Module Federation,Recharts">
+          <div class="service-name">Wealth Dashboard MFE</div>
+          <div class="service-desc">Retail-facing portfolio overview with real-time P&amp;L and asset allocation.</div>
+          <div class="tech-tags"><span class="tech-tag">React</span><span class="tech-tag">Module Federation</span><span class="tech-tag">Recharts</span></div>
+        </div>
+        <div class="service-card" data-name="Portfolio Manager MFE" data-layer="Frontend Application Layer" data-desc="Advisor-facing tool for managing multi-client portfolios, trade blotter, and rebalancing workflows. TypeScript strict mode with comprehensive unit test coverage ensures correctness at scale." data-tags="React,TypeScript,Zustand">
+          <div class="service-name">Portfolio Manager MFE</div>
+          <div class="service-desc">Advisor tool for multi-client portfolios, trade blotter, and rebalancing.</div>
+          <div class="tech-tags"><span class="tech-tag">React</span><span class="tech-tag">TypeScript</span><span class="tech-tag">Zustand</span></div>
+        </div>
+        <div class="service-card" data-name="Investment Analytics MFE" data-layer="Frontend Application Layer" data-desc="Deep-dive analytics module with performance attribution, risk exposure heatmaps, and 45+ rate data visualisations. D3.js custom visualisations for bespoke financial chart types." data-tags="React,D3.js,TanStack Query">
+          <div class="service-name">Investment Analytics MFE</div>
+          <div class="service-desc">Performance attribution, risk heatmaps, and 45+ data visualisations.</div>
+          <div class="tech-tags"><span class="tech-tag">React</span><span class="tech-tag">D3.js</span><span class="tech-tag">TanStack Query</span></div>
+        </div>
+        <div class="service-card" data-name="Advisor Console MFE" data-layer="Frontend Application Layer" data-desc="Client relationship management interface for advisor-client interactions, note-taking, portfolio proposals, and CRM activity logging. CSS Grid-based multi-panel layout." data-tags="React,TanStack Table,CSS Grid">
+          <div class="service-name">Advisor Console MFE</div>
+          <div class="service-desc">CRM interface for advisor-client interactions and portfolio proposals.</div>
+          <div class="tech-tags"><span class="tech-tag">React</span><span class="tech-tag">TanStack Table</span><span class="tech-tag">CSS Grid</span></div>
+        </div>
+        <div class="service-card" data-name="Trade Execution MFE" data-layer="Frontend Application Layer" data-desc="Order ticket, order broker, execution algorithm selector, real-time order status via WebSocket. Sub-100ms UI updates critical for trading workflows. React with WebSocket and fix.js." data-tags="React,WebSocket,fix.js">
+          <div class="service-name">Trade Execution MFE</div>
+          <div class="service-desc">Order ticket, order broker, execution algorithm selector, real-time status.</div>
+          <div class="tech-tags"><span class="tech-tag">React</span><span class="tech-tag">WebSocket</span><span class="tech-tag">fix.js</span></div>
+        </div>
+      </div>
+      <div class="cards-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="service-card" data-name="Mobile App (Expo)" data-layer="Frontend Application Layer" data-desc="Cross-platform iOS and Android app built with Expo and React Native, consuming the shared design token system and component library adapted for mobile interaction patterns." data-tags="Expo,React Native,Tamagui">
+          <div class="service-name">Mobile App (Expo)</div>
+          <div class="service-desc">Cross-platform iOS and Android using the shared design token system.</div>
+          <div class="tech-tags"><span class="tech-tag">Expo</span><span class="tech-tag">React Native</span><span class="tech-tag">Tamagui</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- FDS LAYER 6: FRONTEND ARCHITECTURE & INFRASTRUCTURE -->
+  <section class="layer fds-layer-6" data-layer="fds-6">
+    <div class="layer-header">
+      <div class="layer-icon" style="background:rgba(6,182,212,0.15);color:#06b6d4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#06b6d4">6. FRONTEND ARCHITECTURE & INFRASTRUCTURE</div>
+        <div class="layer-title">Frontend Architecture &amp; Infrastructure</div>
+        <div class="layer-desc">Cross-cutting concerns: state, routing, performance, caching, build, and observability.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns:repeat(5,1fr)">
+        <div class="service-card" data-name="Global State (Zustand)" data-layer="Frontend Architecture" data-desc="Application-wide state store for user session, preferences, portfolio selections, and UI state. Zustand with immer middleware for immutable updates. React Query handles all async server state." data-tags="Zustand,Immer,Redux Toolkit">
+          <div class="service-name">Global State (Zustand)</div>
+          <div class="service-desc">App-wide state for session, preferences, portfolio selections, and UI.</div>
+          <div class="tech-tags"><span class="tech-tag">Zustand</span><span class="tech-tag">Immer</span><span class="tech-tag">Redux Toolkit</span></div>
+        </div>
+        <div class="service-card" data-name="Server State (TanStack Query)" data-layer="Frontend Architecture" data-desc="Data fetching, caching, background refetch, and optimistic updates for all server-fetched data. Stale-while-revalidate strategy ensures UI is always responsive with fresh financial data." data-tags="TanStack Query,SWR,React Suspense">
+          <div class="service-name">Server State (TanStack Query)</div>
+          <div class="service-desc">Data fetching, caching, background refetch, and optimistic updates.</div>
+          <div class="tech-tags"><span class="tech-tag">TanStack Query</span><span class="tech-tag">SWR</span><span class="tech-tag">React Suspense</span></div>
+        </div>
+        <div class="service-card" data-name="Real-Time State (WebSocket)" data-layer="Frontend Architecture" data-desc="Live data subscriptions — order status, market ticks, and balance updates pushed via WebSocket. Reconnection logic with exponential backoff and message queue draining on reconnect." data-tags="WebSocket,SSE,Socket.io">
+          <div class="service-name">Real-Time State (WebSocket)</div>
+          <div class="service-desc">Live order status, market ticks, and balance updates via WebSocket.</div>
+          <div class="tech-tags"><span class="tech-tag">WebSocket</span><span class="tech-tag">SSE</span><span class="tech-tag">Socket.io</span></div>
+        </div>
+        <div class="service-card" data-name="Micro-Frontend Host" data-layer="Frontend Architecture" data-desc="Module Federation host application orchestrating independently deployed MFEs. Single-SPA enables multiple frameworks to coexist in one page at the shell level." data-tags="Module Federation,Single-SPA,Vite">
+          <div class="service-name">Micro-Frontend Host</div>
+          <div class="service-desc">Module Federation host orchestrating independently deployed MFEs.</div>
+          <div class="tech-tags"><span class="tech-tag">Module Federation</span><span class="tech-tag">Single-SPA</span><span class="tech-tag">Vite</span></div>
+        </div>
+        <div class="service-card" data-name="Performance Optimization" data-layer="Frontend Architecture" data-desc="Code splitting, lazy loading, tree shaking, image optimisation, and React.memo usage guidelines. Web Vitals budgets enforced via Lighthouse CI with LCP target under 2.5s." data-tags="Vite,Rollup,Web Vitals">
+          <div class="service-name">Performance Optimization</div>
+          <div class="service-desc">Code splitting, lazy loading, tree shaking, and Web Vitals budgets.</div>
+          <div class="tech-tags"><span class="tech-tag">Vite</span><span class="tech-tag">Rollup</span><span class="tech-tag">Web Vitals</span></div>
+        </div>
+      </div>
+      <div class="cards-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="service-card" data-name="CDN & Edge Caching" data-layer="Frontend Architecture" data-desc="Static asset delivery via CloudFront with aggressive cache headers for hashed bundles. Edge functions handle personalised AB-test variants and geo-based feature flags near the user." data-tags="CloudFront,Cloudflare">
+          <div class="service-name">CDN &amp; Edge Caching</div>
+          <div class="service-desc">CloudFront static asset delivery with edge functions for feature flags.</div>
+          <div class="tech-tags"><span class="tech-tag">CloudFront</span><span class="tech-tag">Cloudflare</span></div>
+        </div>
+        <div class="service-card" data-name="Frontend Observability" data-layer="Frontend Architecture" data-desc="Real-user monitoring capturing Core Web Vitals, JS errors, and network timing. Datadog RUM provides session replay for diagnosing production frontend issues and performance regressions." data-tags="Datadog RUM,Sentry,OpenTelemetry">
+          <div class="service-name">Frontend Observability</div>
+          <div class="service-desc">RUM, Core Web Vitals, JS errors, and session replay via Datadog RUM.</div>
+          <div class="tech-tags"><span class="tech-tag">Datadog RUM</span><span class="tech-tag">Sentry</span><span class="tech-tag">OpenTelemetry</span></div>
+        </div>
+        <div class="service-card" data-name="Frontend CI/CD" data-layer="Frontend Architecture" data-desc="Automated lint, type-check, unit test, and Chromatic visual regression on every PR. Vite build with bundle size budgets enforced. Netlify/Vercel preview deployments for every feature branch." data-tags="GitHub Actions,Turbo,Vercel">
+          <div class="service-name">Frontend CI/CD</div>
+          <div class="service-desc">Lint, type-check, unit test, visual regression and preview deploys on every PR.</div>
+          <div class="tech-tags"><span class="tech-tag">GitHub Actions</span><span class="tech-tag">Turbo</span><span class="tech-tag">Vercel</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layer-connector"><div class="connector-arrow"><div class="connector-line"></div><div class="connector-triangle"></div></div></div>
+
+  <!-- FDS LAYER 7: INTEGRATION & API LAYER -->
+  <section class="layer fds-layer-7" data-layer="fds-7">
+    <div class="layer-header">
+      <div class="layer-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <div class="layer-title-group">
+        <div class="layer-number" style="color:#3b82f6">7. INTEGRATION & API LAYER</div>
+        <div class="layer-title">Integration &amp; API Layer</div>
+        <div class="layer-desc">The boundary between the frontend and backend — secure, typed, and observable.</div>
+      </div>
+    </div>
+    <div class="layer-body">
+      <div class="cards-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="service-card" data-name="API Gateway (GraphQL + REST)" data-layer="Integration & API Layer" data-desc="Type-safe GraphQL client with codegen from schema for zero-drift between API contract and frontend types. Apollo Client for caching, optimistic updates, and subscription handling. REST via Axios." data-tags="Apollo Client,GraphQL Codegen,Axios">
+          <div class="service-name">API Gateway (GraphQL + REST)</div>
+          <div class="service-desc">Type-safe GraphQL client with codegen for zero-drift API contracts.</div>
+          <div class="tech-tags"><span class="tech-tag">Apollo Client</span><span class="tech-tag">GraphQL Codegen</span><span class="tech-tag">Axios</span></div>
+        </div>
+        <div class="service-card" data-name="Auth & Session (OAuth 2.0 / PKCE)" data-layer="Integration & API Layer" data-desc="PKCE-secured OAuth 2.0 flow with silent token refresh via hidden iframe. Secure HttpOnly cookie session management. Auth state synced across micro-frontend boundaries via broadcast channel." data-tags="OAuth 2.0,oidc-client,Broadcast Channel">
+          <div class="service-name">Auth &amp; Session (OAuth 2.0 / PKCE)</div>
+          <div class="service-desc">PKCE OAuth 2.0 flow with silent token refresh and secure session management.</div>
+          <div class="tech-tags"><span class="tech-tag">OAuth 2.0</span><span class="tech-tag">oidc-client</span><span class="tech-tag">Broadcast Channel</span></div>
+        </div>
+        <div class="service-card" data-name="Backend for Frontend (BFF)" data-layer="Integration & API Layer" data-desc="Thin Node.js BFF layer aggregating multiple microservice calls into single optimised UI-specific payloads. Reduces over-fetching and shields frontend from internal service topology changes." data-tags="Node.js,Express,tRPC">
+          <div class="service-name">Backend for Frontend (BFF)</div>
+          <div class="service-desc">Thin Node.js BFF aggregating microservice calls into UI-optimised payloads.</div>
+          <div class="tech-tags"><span class="tech-tag">Node.js</span><span class="tech-tag">Express</span><span class="tech-tag">tRPC</span></div>
+        </div>
+        <div class="service-card" data-name="API Mocking & Contract Tests" data-layer="Integration & API Layer" data-desc="MSW (Mock Service Worker) intercepts network requests in tests and Storybook for isolated development. Pact contract tests verify frontend-backend API compatibility on every CI run." data-tags="MSW,Pact,Vitest">
+          <div class="service-name">API Mocking &amp; Contract Tests</div>
+          <div class="service-desc">MSW mocking for isolated dev and Pact contract tests for API compatibility.</div>
+          <div class="tech-tags"><span class="tech-tag">MSW</span><span class="tech-tag">Pact</span><span class="tech-tag">Vitest</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<!-- ── SIDE PANEL ─────────────────────────────────────── -->
+<div class="panel-backdrop" id="panel-backdrop"></div>
+<div class="side-panel" id="side-panel">
+  <div class="panel-accent-bar" id="panel-accent-bar"></div>
+  <div class="panel-header">
+    <div class="panel-header-top">
+      <div class="panel-title" id="panel-title">Service Name</div>
+      <button class="panel-close" id="panel-close">✕</button>
+    </div>
+    <div class="panel-meta">
+      <div class="panel-layer-badge" id="panel-layer-badge">Layer</div>
+      <div class="panel-status"><div class="panel-status-dot"></div>Operational</div>
+    </div>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+  <div class="panel-footer">
+    <button class="btn btn-ghost" id="panel-close-footer">Close</button>
+    <button class="btn btn-primary">View Docs →</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CANVAS + PARTICLES
+// ══════════════════════════════════════════════════════
+const canvas = document.getElementById('connections-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let dataFlowsActive = false;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = document.body.scrollHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function drawConnections() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+
+  if (dataFlowsActive) {
+    const activeView = document.getElementById('view-fds').style.display === 'none'
+      ? '#view-arch' : '#view-fds';
+    const layers = document.querySelectorAll(activeView + ' .layer');
+    const colors = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#6366f1'];
+    const rects = Array.from(layers).map(function(l) {
+      const r = l.getBoundingClientRect();
+      return { bottom: r.bottom + window.scrollY, top: r.top + window.scrollY,
+               centerX: r.left + r.width / 2 };
+    });
+    for (let i = 0; i < rects.length - 1; i++) {
+      const a = rects[i], b = rects[i+1];
+      const grad = ctx.createLinearGradient(a.centerX, a.bottom, b.centerX, b.top);
+      grad.addColorStop(0, colors[i % colors.length] + '55');
+      grad.addColorStop(1, colors[(i+1) % colors.length] + '55');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4,6]);
+      ctx.beginPath();
+      ctx.moveTo(a.centerX, a.bottom);
+      ctx.bezierCurveTo(a.centerX, a.bottom+20, b.centerX, b.top-20, b.centerX, b.top);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
+  requestAnimationFrame(drawConnections);
+}
+
+// ══════════════════════════════════════════════════════
+//  HOVER CONNECTION ARROWS
+// ══════════════════════════════════════════════════════
+const hoverOverlay = document.getElementById('hover-overlay');
+let hoverLineEls = [];
+let hoverTimeout = null;
+
+// Map service names to connected service names (bidirectional data flow lines)
+const SERVICE_CONNECTIONS = {
+  // Arch Layer 1 → Layer 2
+  'Web Portal':            ['API Gateway', 'WAF'],
+  'Mobile App':            ['API Gateway', 'WAF'],
+  'Advisor Dashboard':     ['API Gateway', 'WAF'],
+  'Institutional Portal':  ['API Gateway', 'WAF'],
+  // Layer 2
+  'WAF':                   ['Web Portal','Mobile App','Advisor Dashboard','Institutional Portal','API Gateway'],
+  'API Gateway':           ['WAF','Identity (OAuth 2.0)','Rate Limiter','Portfolio Management','Wealth Analytics','Order Management','Risk Assessment','Client Management'],
+  'Identity (OAuth 2.0)':  ['API Gateway','Client DB'],
+  'Rate Limiter':          ['API Gateway','Cache Layer'],
+  // Layer 3
+  'Portfolio Management':  ['API Gateway','Portfolio DB','Event Bus (Kafka)'],
+  'Wealth Analytics':      ['Event Bus (Kafka)','Data Warehouse','Market Data DB'],
+  'Order Management':      ['API Gateway','Event Bus (Kafka)','Market Providers'],
+  'Risk Assessment':       ['Portfolio Management','Market Data DB','Event Bus (Kafka)'],
+  'Client Management':     ['API Gateway','Client DB','Event Bus (Kafka)'],
+  'Reporting Service':     ['Portfolio Management','Document Store','Event Bus (Kafka)'],
+  'Fee Engine':            ['Portfolio Management','Portfolio DB'],
+  'Notification Service':  ['Event Bus (Kafka)','Client DB'],
+  // Layer 4
+  'Event Bus (Kafka)':     ['Portfolio Management','Wealth Analytics','Order Management','Risk Assessment','Client Management','Reporting Service','Notification Service','Cache Layer','Search Index'],
+  'Cache Layer':           ['Rate Limiter','Event Bus (Kafka)','Market Data DB'],
+  'Search Index':          ['Event Bus (Kafka)','API Gateway'],
+  // Layer 5
+  'Portfolio DB':          ['Portfolio Management','Fee Engine','Client DB'],
+  'Client DB':             ['Client Management','Identity (OAuth 2.0)','Notification Service'],
+  'Market Data DB':        ['Risk Assessment','Wealth Analytics','Cache Layer'],
+  'Document Store':        ['Reporting Service','Client Management'],
+  'Data Warehouse':        ['Wealth Analytics','Event Bus (Kafka)'],
+  // Layer 6
+  'Market Providers':      ['Market Data DB','Order Management','Cache Layer'],
+  'Custodian Banks':       ['Order Management','Portfolio DB'],
+  'Regulatory APIs':       ['Reporting Service'],
+  'Payment Networks':      ['Portfolio Management','Portfolio DB'],
+  'Rating Agencies':       ['Market Data DB','Risk Assessment'],
+  // Layer 7
+  'Cloud Infra':           ['CI/CD Pipeline','Monitoring','Logging'],
+  'CI/CD Pipeline':        ['Cloud Infra','Monitoring'],
+  'Monitoring':            ['Cloud Infra','Logging'],
+  'Logging':               ['Cloud Infra','Monitoring'],
+  // FDS connections
+  'Color Tokens':          ['Theme Engine','Typography Tokens','Shadow & Elevation Tokens'],
+  'Typography Tokens':     ['Color Tokens','Spacing & Layout Tokens'],
+  'Spacing & Layout Tokens':['Typography Tokens','Motion & Animation Tokens','Layout Components'],
+  'Motion & Animation Tokens':['Spacing & Layout Tokens','Primitive Components'],
+  'Shadow & Elevation Tokens':['Color Tokens','Feedback & Status'],
+  'Theme Engine':          ['Color Tokens','WCAG 2.1 AA Compliance'],
+  'WCAG 2.1 AA Compliance':['Theme Engine','ARIA Patterns Library','Automated A11y Testing'],
+  'ARIA Patterns Library': ['WCAG 2.1 AA Compliance','Primitive Components','Navigation Components'],
+  'Internationalisation (i18n)':['Primitive Components','Form Components'],
+  'Automated A11y Testing':['WCAG 2.1 AA Compliance','Storybook'],
+  'Primitive Components':  ['Data Display Components','Form Components','Layout Components','Feedback & Status','Navigation Components'],
+  'Data Display Components':['Primitive Components','Storybook'],
+  'Form Components':       ['Primitive Components','Storybook'],
+  'Layout Components':     ['Primitive Components','Storybook'],
+  'Feedback & Status':     ['Primitive Components','Storybook'],
+  'Navigation Components': ['Primitive Components','Storybook'],
+  'Storybook':             ['Primitive Components','Visual Regression (Chromatic)','UX Patterns Guidelines'],
+  'Figma Design Library':  ['Color Tokens','Typography Tokens','Storybook'],
+  'Visual Regression (Chromatic)':['Storybook','Frontend CI/CD'],
+  'UX Patterns Guidelines':['Storybook'],
+  'Wealth Dashboard MFE':  ['Micro-Frontend Host','Global State (Zustand)','Server State (TanStack Query)','Real-Time State (WebSocket)'],
+  'Portfolio Manager MFE': ['Micro-Frontend Host','Server State (TanStack Query)'],
+  'Investment Analytics MFE':['Micro-Frontend Host','Real-Time State (WebSocket)'],
+  'Advisor Console MFE':   ['Micro-Frontend Host','Server State (TanStack Query)'],
+  'Trade Execution MFE':   ['Micro-Frontend Host','Real-Time State (WebSocket)'],
+  'Mobile App (Expo)':     ['Micro-Frontend Host','API Gateway (GraphQL + REST)'],
+  'Global State (Zustand)':['Wealth Dashboard MFE','Portfolio Manager MFE','Theme Engine'],
+  'Server State (TanStack Query)':['Wealth Dashboard MFE','API Gateway (GraphQL + REST)'],
+  'Real-Time State (WebSocket)':['Trade Execution MFE','Investment Analytics MFE'],
+  'Micro-Frontend Host':   ['Wealth Dashboard MFE','Portfolio Manager MFE','Investment Analytics MFE','Advisor Console MFE','Trade Execution MFE','CDN & Edge Caching','Performance Optimization'],
+  'Performance Optimization':['Micro-Frontend Host','Frontend CI/CD'],
+  'CDN & Edge Caching':    ['Micro-Frontend Host'],
+  'Frontend Observability':['Frontend CI/CD'],
+  'Frontend CI/CD':        ['Visual Regression (Chromatic)','Performance Optimization','Frontend Observability'],
+  'API Gateway (GraphQL + REST)':['Server State (TanStack Query)','Auth & Session (OAuth 2.0 / PKCE)','Backend for Frontend (BFF)'],
+  'Auth & Session (OAuth 2.0 / PKCE)':['API Gateway (GraphQL + REST)'],
+  'Backend for Frontend (BFF)':['API Gateway (GraphQL + REST)'],
+  'API Mocking & Contract Tests':['Frontend CI/CD'],
+};
+
+function clearHoverLines() {
+  hoverLineEls.forEach(function(el) { if (el.parentNode) el.parentNode.removeChild(el); });
+  hoverLineEls = [];
+  document.querySelectorAll('.service-card.conn-target').forEach(function(c) {
+    c.classList.remove('conn-target');
+    c.style.removeProperty('--conn-color');
+  });
+}
+
+function getCardCenter(card) {
+  const r = card.getBoundingClientRect();
+  return {
+    x: r.left + r.width / 2,
+    y: r.top + r.height / 2,
+    top:    r.top,
+    bottom: r.bottom,
+    left:   r.left,
+    right:  r.right,
+    w: r.width,
+    h: r.height
+  };
+}
+
+function getEdgePoint(rect, fromX, fromY) {
+  // Return the nearest border point on the rect facing toward (fromX,fromY)
+  const cx = rect.x, cy = rect.y;
+  const dx = fromX - cx, dy = fromY - cy;
+  const halfW = rect.w / 2 - 8, halfH = rect.h / 2 - 8;
+  const scaleX = halfW / Math.abs(dx || 1);
+  const scaleY = halfH / Math.abs(dy || 1);
+  const scale = Math.min(scaleX, scaleY);
+  return { x: cx + dx * scale, y: cy + dy * scale };
+}
+
+function drawArrowHead(svg, x, y, angle, color) {
+  const size = 6;
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const x1 = x - size * cos + size * 0.5 * sin;
+  const y1 = y - size * sin - size * 0.5 * cos;
+  const x2 = x - size * cos - size * 0.5 * sin;
+  const y2 = y - size * sin + size * 0.5 * cos;
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  arrow.setAttribute('points', x + ',' + y + ' ' + x1 + ',' + y1 + ' ' + x2 + ',' + y2);
+  arrow.setAttribute('fill', color);
+  arrow.setAttribute('opacity', '0');
+  arrow.classList.add('hover-conn-arrow');
+  svg.appendChild(arrow);
+  hoverLineEls.push(arrow);
+  requestAnimationFrame(function() { arrow.classList.add('visible'); });
+  return arrow;
+}
+
+function onCardHover(card) {
+  clearHoverLines();
+  const name = card.dataset.name;
+  if (!name) return;
+  const connNames = SERVICE_CONNECTIONS[name];
+  if (!connNames || !connNames.length) return;
+
+  const meta = getLayerMeta(card);
+  const color = meta.accent[0];
+
+  // Find target cards
+  const allCards = document.querySelectorAll('.service-card');
+  const targets = [];
+  allCards.forEach(function(c) {
+    if (connNames.indexOf(c.dataset.name) !== -1 && c !== card) {
+      targets.push(c);
+      c.classList.add('conn-target');
+      c.style.setProperty('--conn-color', color);
+    }
+  });
+
+  if (!targets.length) return;
+
+  const fromRect = getCardCenter(card);
+
+  targets.forEach(function(target) {
+    const toRect = getCardCenter(target);
+
+    // Edge points
+    const fromEdge = getEdgePoint(fromRect, toRect.x, toRect.y);
+    const toEdge   = getEdgePoint(toRect, fromRect.x, fromRect.y);
+
+    const dx = toEdge.x - fromEdge.x;
+    const dy = toEdge.y - fromEdge.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const curve = Math.min(dist * 0.35, 80);
+
+    // Perpendicular offset for bezier control points
+    const nx = -dy / dist * curve;
+    const ny =  dx / dist * curve;
+
+    const cp1x = fromEdge.x + dx * 0.3 + nx;
+    const cp1y = fromEdge.y + dy * 0.3 + ny;
+    const cp2x = fromEdge.x + dx * 0.7 + nx;
+    const cp2y = fromEdge.y + dy * 0.7 + ny;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const d = 'M' + fromEdge.x + ',' + fromEdge.y
+            + ' C' + cp1x + ',' + cp1y
+            + ' ' + cp2x + ',' + cp2y
+            + ' ' + toEdge.x + ',' + toEdge.y;
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-dashoffset', '0');
+    path.classList.add('hover-conn-line');
+    hoverOverlay.appendChild(path);
+    hoverLineEls.push(path);
+    requestAnimationFrame(function() { path.classList.add('visible'); });
+
+    // Origin dot
+    const dotFrom = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dotFrom.setAttribute('cx', fromEdge.x);
+    dotFrom.setAttribute('cy', fromEdge.y);
+    dotFrom.setAttribute('r', '3.5');
+    dotFrom.setAttribute('fill', color);
+    dotFrom.classList.add('hover-conn-dot');
+    hoverOverlay.appendChild(dotFrom);
+    hoverLineEls.push(dotFrom);
+    requestAnimationFrame(function() { dotFrom.classList.add('visible'); });
+
+    // Arrowhead at target end
+    const angle = Math.atan2(toEdge.y - cp2y, toEdge.x - cp2x);
+    drawArrowHead(hoverOverlay, toEdge.x, toEdge.y, angle, color);
+
+    // Target dot
+    const dotTo = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dotTo.setAttribute('cx', toEdge.x);
+    dotTo.setAttribute('cy', toEdge.y);
+    dotTo.setAttribute('r', '3');
+    dotTo.setAttribute('fill', color);
+    dotTo.setAttribute('opacity','0.7');
+    dotTo.classList.add('hover-conn-dot');
+    hoverOverlay.appendChild(dotTo);
+    hoverLineEls.push(dotTo);
+    requestAnimationFrame(function() { dotTo.classList.add('visible'); });
+  });
+}
+
+function onCardLeave() {
+  if (hoverTimeout) clearTimeout(hoverTimeout);
+  hoverTimeout = setTimeout(clearHoverLines, 80);
+}
+
+// Attach hover listeners to all service cards
+function attachHoverListeners() {
+  document.querySelectorAll('.service-card').forEach(function(card) {
+    card.addEventListener('mouseenter', function() {
+      if (hoverTimeout) clearTimeout(hoverTimeout);
+      onCardHover(this);
+    });
+    card.addEventListener('mouseleave', onCardLeave);
+  });
+}
+attachHoverListeners();
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 1.5 + 0.5;
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.speedY = (Math.random() - 0.5) * 0.3;
+    this.opacity = Math.random() * 0.25 + 0.05;
+    this.color = ['#3b82f6','#8b5cf6','#10b981','#f59e0b'][Math.floor(Math.random()*4)];
+  }
+  update() {
+    this.x += this.speedX; this.y += this.speedY;
+    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+  }
+  draw() {
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+for (let i = 0; i < 80; i++) particles.push(new Particle());
+drawConnections();
+
+// ══════════════════════════════════════════════════════
+//  DATA FLOWS TOGGLE — draws ALL card connections at once
+// ══════════════════════════════════════════════════════
+
+// Dedicated container for global flow lines (separate from hover lines)
+const flowOverlay = document.createElementNS('http://www.w3.org/2000/svg','svg');
+flowOverlay.setAttribute('id','flow-overlay');
+flowOverlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:49;overflow:visible;';
+document.body.appendChild(flowOverlay);
+
+let globalFlowEls = [];
+
+function clearGlobalFlows() {
+  globalFlowEls.forEach(function(el) { if (el.parentNode) el.parentNode.removeChild(el); });
+  globalFlowEls = [];
+  document.querySelectorAll('.service-card.global-flow-src').forEach(function(c) {
+    c.classList.remove('global-flow-src');
+  });
+}
+
+function drawGlobalFlows() {
+  clearGlobalFlows();
+  if (!dataFlowsActive) return;
+
+  // Find which view is active
+  const isFds = document.getElementById('view-fds').style.display !== 'none';
+  const scope = isFds ? '#view-fds' : '#view-arch';
+  const cards = document.querySelectorAll(scope + ' .service-card');
+
+  // Build a name→card map
+  const cardMap = {};
+  cards.forEach(function(card) {
+    if (card.dataset.name) cardMap[card.dataset.name] = card;
+  });
+
+  // Track drawn pairs to avoid duplicates
+  const drawn = new Set();
+
+  cards.forEach(function(card) {
+    const name = card.dataset.name;
+    if (!name) return;
+    const connNames = SERVICE_CONNECTIONS[name];
+    if (!connNames || !connNames.length) return;
+
+    const meta = getLayerMeta(card);
+    const color = meta.accent[0];
+    const fromRect = getCardCenter(card);
+
+    connNames.forEach(function(targetName) {
+      const target = cardMap[targetName];
+      if (!target || target === card) return;
+
+      // Use sorted key so we don't draw A→B and B→A separately
+      const key = [name, targetName].sort().join('||');
+      if (drawn.has(key)) return;
+      drawn.add(key);
+
+      const toRect = getCardCenter(target);
+      const fromEdge = getEdgePoint(fromRect, toRect.x, toRect.y);
+      const toEdge   = getEdgePoint(toRect, fromRect.x, fromRect.y);
+
+      const dx = toEdge.x - fromEdge.x;
+      const dy = toEdge.y - fromEdge.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 10) return;
+
+      const curve = Math.min(dist * 0.3, 70);
+      const nx = -dy / dist * curve;
+      const ny =  dx / dist * curve;
+
+      const cp1x = fromEdge.x + dx*0.3 + nx;
+      const cp1y = fromEdge.y + dy*0.3 + ny;
+      const cp2x = fromEdge.x + dx*0.7 + nx;
+      const cp2y = fromEdge.y + dy*0.7 + ny;
+
+      // Path
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      const d = 'M'+fromEdge.x+','+fromEdge.y
+              +' C'+cp1x+','+cp1y
+              +' '+cp2x+','+cp2y
+              +' '+toEdge.x+','+toEdge.y;
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', color);
+      path.setAttribute('stroke-width', '1.2');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-dasharray', '5 5');
+      path.setAttribute('stroke-dashoffset', '0');
+      path.setAttribute('opacity', '0');
+      path.style.transition = 'opacity 0.4s ease';
+      path.style.animation = 'dashFlow 1.4s linear infinite';
+      flowOverlay.appendChild(path);
+      globalFlowEls.push(path);
+      setTimeout(function() { path.setAttribute('opacity','0.55'); }, 20);
+
+      // Arrowhead at toEdge
+      const angle = Math.atan2(toEdge.y - cp2y, toEdge.x - cp2x);
+      const sz = 5;
+      const cos = Math.cos(angle), sin = Math.sin(angle);
+      const ax1 = toEdge.x - sz*cos + sz*0.5*sin;
+      const ay1 = toEdge.y - sz*sin - sz*0.5*cos;
+      const ax2 = toEdge.x - sz*cos - sz*0.5*sin;
+      const ay2 = toEdge.y - sz*sin + sz*0.5*cos;
+      const arrow = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      arrow.setAttribute('points', toEdge.x+','+toEdge.y+' '+ax1+','+ay1+' '+ax2+','+ay2);
+      arrow.setAttribute('fill', color);
+      arrow.setAttribute('opacity','0');
+      arrow.style.transition = 'opacity 0.4s ease';
+      flowOverlay.appendChild(arrow);
+      globalFlowEls.push(arrow);
+      setTimeout(function() { arrow.setAttribute('opacity','0.7'); }, 40);
+
+      // Small dot at origin
+      const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx', fromEdge.x);
+      dot.setAttribute('cy', fromEdge.y);
+      dot.setAttribute('r', '2.5');
+      dot.setAttribute('fill', color);
+      dot.setAttribute('opacity','0');
+      dot.style.transition = 'opacity 0.4s ease';
+      flowOverlay.appendChild(dot);
+      globalFlowEls.push(dot);
+      setTimeout(function() { dot.setAttribute('opacity','0.6'); }, 20);
+    });
+  });
+}
+
+function bindDataFlowBtn(btnId) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    dataFlowsActive = !dataFlowsActive;
+    document.querySelectorAll('.data-flows-btn').forEach(function(b) {
+      b.classList.toggle('active', dataFlowsActive);
+      b.setAttribute('aria-pressed', dataFlowsActive ? 'true' : 'false');
+    });
+    resizeCanvas();
+
+    if (dataFlowsActive) {
+      setTimeout(drawGlobalFlows, 60);
+    } else {
+      clearGlobalFlows();
+    }
+  });
+}
+bindDataFlowBtn('data-flows-btn');
+bindDataFlowBtn('fds-data-flows-btn');
+
+// Re-draw global flows on scroll/resize so lines track cards
+window.addEventListener('scroll', function() { if (dataFlowsActive) drawGlobalFlows(); }, { passive: true });
+window.addEventListener('resize', function() { if (dataFlowsActive) setTimeout(drawGlobalFlows, 100); });
+
+// ══════════════════════════════════════════════════════
+//  LAYER META — both arch and FDS
+// ══════════════════════════════════════════════════════
+const ALL_LAYER_META = {
+  'layer-1':     { accent:['#3b82f6','#60a5fa'],  tagBg:'rgba(59,130,246,0.12)',  tagBorder:'rgba(59,130,246,0.3)',  tagColor:'#93c5fd',  badgeBg:'rgba(59,130,246,0.1)',  badgeBorder:'rgba(59,130,246,0.25)',  badgeColor:'#93c5fd'  },
+  'layer-2':     { accent:['#8b5cf6','#a78bfa'],  tagBg:'rgba(139,92,246,0.12)', tagBorder:'rgba(139,92,246,0.3)', tagColor:'#c4b5fd',  badgeBg:'rgba(139,92,246,0.1)', badgeBorder:'rgba(139,92,246,0.25)', badgeColor:'#c4b5fd'  },
+  'layer-3':     { accent:['#10b981','#34d399'],  tagBg:'rgba(16,185,129,0.12)', tagBorder:'rgba(16,185,129,0.3)', tagColor:'#6ee7b7',  badgeBg:'rgba(16,185,129,0.1)', badgeBorder:'rgba(16,185,129,0.25)', badgeColor:'#6ee7b7'  },
+  'layer-4':     { accent:['#f59e0b','#fbbf24'],  tagBg:'rgba(245,158,11,0.12)', tagBorder:'rgba(245,158,11,0.3)', tagColor:'#fcd34d',  badgeBg:'rgba(245,158,11,0.1)', badgeBorder:'rgba(245,158,11,0.25)', badgeColor:'#fcd34d'  },
+  'layer-5':     { accent:['#ef4444','#f87171'],  tagBg:'rgba(239,68,68,0.12)',  tagBorder:'rgba(239,68,68,0.3)',  tagColor:'#fca5a5',  badgeBg:'rgba(239,68,68,0.1)',  badgeBorder:'rgba(239,68,68,0.25)',  badgeColor:'#fca5a5'  },
+  'layer-6':     { accent:['#06b6d4','#22d3ee'],  tagBg:'rgba(6,182,212,0.12)',  tagBorder:'rgba(6,182,212,0.3)',  tagColor:'#67e8f9',  badgeBg:'rgba(6,182,212,0.1)',  badgeBorder:'rgba(6,182,212,0.25)',  badgeColor:'#67e8f9'  },
+  'layer-7':     { accent:['#6366f1','#818cf8'],  tagBg:'rgba(99,102,241,0.12)', tagBorder:'rgba(99,102,241,0.3)', tagColor:'#a5b4fc',  badgeBg:'rgba(99,102,241,0.1)', badgeBorder:'rgba(99,102,241,0.25)', badgeColor:'#a5b4fc'  },
+  'fds-layer-1': { accent:['#6366f1','#818cf8'],  tagBg:'rgba(99,102,241,0.12)', tagBorder:'rgba(99,102,241,0.3)', tagColor:'#a5b4fc',  badgeBg:'rgba(99,102,241,0.1)', badgeBorder:'rgba(99,102,241,0.25)', badgeColor:'#a5b4fc'  },
+  'fds-layer-2': { accent:['#8b5cf6','#a78bfa'],  tagBg:'rgba(139,92,246,0.12)', tagBorder:'rgba(139,92,246,0.3)', tagColor:'#c4b5fd',  badgeBg:'rgba(139,92,246,0.1)', badgeBorder:'rgba(139,92,246,0.25)', badgeColor:'#c4b5fd'  },
+  'fds-layer-3': { accent:['#10b981','#34d399'],  tagBg:'rgba(16,185,129,0.12)', tagBorder:'rgba(16,185,129,0.3)', tagColor:'#6ee7b7',  badgeBg:'rgba(16,185,129,0.1)', badgeBorder:'rgba(16,185,129,0.25)', badgeColor:'#6ee7b7'  },
+  'fds-layer-4': { accent:['#f59e0b','#fbbf24'],  tagBg:'rgba(245,158,11,0.12)', tagBorder:'rgba(245,158,11,0.3)', tagColor:'#fcd34d',  badgeBg:'rgba(245,158,11,0.1)', badgeBorder:'rgba(245,158,11,0.25)', badgeColor:'#fcd34d'  },
+  'fds-layer-5': { accent:['#ef4444','#f87171'],  tagBg:'rgba(239,68,68,0.12)',  tagBorder:'rgba(239,68,68,0.3)',  tagColor:'#fca5a5',  badgeBg:'rgba(239,68,68,0.1)',  badgeBorder:'rgba(239,68,68,0.25)',  badgeColor:'#fca5a5'  },
+  'fds-layer-6': { accent:['#06b6d4','#22d3ee'],  tagBg:'rgba(6,182,212,0.12)',  tagBorder:'rgba(6,182,212,0.3)',  tagColor:'#67e8f9',  badgeBg:'rgba(6,182,212,0.1)',  badgeBorder:'rgba(6,182,212,0.25)',  badgeColor:'#67e8f9'  },
+  'fds-layer-7': { accent:['#3b82f6','#60a5fa'],  tagBg:'rgba(59,130,246,0.12)', tagBorder:'rgba(59,130,246,0.3)', tagColor:'#93c5fd',  badgeBg:'rgba(59,130,246,0.1)', badgeBorder:'rgba(59,130,246,0.25)', badgeColor:'#93c5fd'  },
+};
+
+function getLayerMeta(card) {
+  const section = card.closest('.layer');
+  if (!section) return ALL_LAYER_META['layer-1'];
+  const cls = [...section.classList];
+  // Try fds-layer-N first, then layer-N
+  const fdsMatch = cls.find(c => c.startsWith('fds-layer-'));
+  if (fdsMatch && ALL_LAYER_META[fdsMatch]) return ALL_LAYER_META[fdsMatch];
+  const archMatch = cls.find(c => /^layer-[1-9]$/.test(c));
+  if (archMatch && ALL_LAYER_META[archMatch]) return ALL_LAYER_META[archMatch];
+  return ALL_LAYER_META['layer-1'];
+}
+
+// ══════════════════════════════════════════════════════
+//  SERVICE DATA (Arch + FDS)
+// ══════════════════════════════════════════════════════
+const serviceData = {
+  // ── ARCH ──────────────────────────────────────────────
+  'Web Portal':{ responsibilities:['Responsive SPA for retail clients to view portfolios and execute trades.','Real-time price streaming via WebSocket connections managed through Redux middleware.','Code-split lazy loading ensures sub-3s time-to-interactive even on slower connections.'], metrics:[{value:'<3s',label:'Load Time'},{value:'99.9%',label:'Uptime'},{value:'~50k',label:'Daily Users'}], connections:[{dir:'up',name:'API Gateway',via:'HTTPS/REST'},{dir:'down',name:'Portfolio Management',via:'GraphQL'}] },
+  'Mobile App':{ responsibilities:['Cross-platform native app for iOS and Android built with React Native.','Push notifications for price alerts, margin calls, and execution confirmations.','Biometric auth (Face ID, Touch ID) with secure token storage in device keychain.'], metrics:[{value:'4.8★',label:'App Rating'},{value:'2MB',label:'Bundle'},{value:'120fps',label:'Scroll'}], connections:[{dir:'up',name:'API Gateway',via:'HTTPS/REST'},{dir:'down',name:'Notification Service',via:'Push'}] },
+  'Advisor Dashboard':{ responsibilities:['Feature-dense terminal for RIAs handling 50–500 client accounts.','AG Grid server-side row model renders 100k+ rows without UI freezes.','Angular modules are lazy-loaded per feature domain to minimise bundle size.'], metrics:[{value:'500ms',label:'Grid Render'},{value:'100k+',label:'Rows Live'},{value:'12',label:'Widgets'}], connections:[{dir:'up',name:'API Gateway',via:'GraphQL'},{dir:'down',name:'Wealth Analytics',via:'REST'}] },
+  'Institutional Portal':{ responsibilities:['High-frequency data portal for hedge funds requiring ultra-low latency.','WebSocket subscriptions deliver tick-level data with sub-50ms display latency.','D3.js renders custom order-book depth charts and yield curves in real-time.'], metrics:[{value:'<50ms',label:'Latency'},{value:'1k/s',label:'Ticks'},{value:'FIX',label:'Protocol'}], connections:[{dir:'up',name:'API Gateway',via:'WebSocket'},{dir:'down',name:'Order Management',via:'FIX'}] },
+  'WAF':{ responsibilities:['Layer 7 firewall blocking OWASP Top 10 attack vectors.','CloudFlare CDN provides DDoS mitigation absorbing multi-Tbps volumetric attacks.','Custom rule sets for financial API endpoints enforce strict input validation.'], metrics:[{value:'99.99%',label:'Block Rate'},{value:'<1ms',label:'Added Latency'},{value:'Tbps',label:'DDoS Cap'}], connections:[{dir:'up',name:'Client Layer',via:'HTTPS'},{dir:'down',name:'API Gateway',via:'Filtered HTTPS'}] },
+  'API Gateway':{ responsibilities:['Central ingress routing all inbound requests to downstream microservices.','Kong plugins handle JWT validation, request transformation, and response caching.','GraphQL federation stitches multiple service schemas into a unified graph.'], metrics:[{value:'50k',label:'Req/sec'},{value:'<5ms',label:'Overhead'},{value:'99.95%',label:'Availability'}], connections:[{dir:'up',name:'WAF',via:'HTTPS'},{dir:'down',name:'Core Microservices',via:'gRPC/REST'}] },
+  'Identity (OAuth 2.0)':{ responsibilities:['OAuth 2.0 + OIDC flows with PKCE for SPAs.','Okta manages enterprise SSO integrations with SAML 2.0 for institutional clients.','JWT access tokens with 15min expiry and refresh token rotation.'], metrics:[{value:'<100ms',label:'Auth Time'},{value:'RS256',label:'Algorithm'},{value:'PKCE',label:'Flow'}], connections:[{dir:'up',name:'API Gateway',via:'OAuth Redirect'},{dir:'down',name:'Client DB',via:'User Lookup'}] },
+  'Rate Limiter':{ responsibilities:['Sliding window rate limiting with per-user, per-IP, and per-endpoint granularity.','Redis counters enable sub-millisecond check-and-increment at scale.','Envoy circuit breakers automatically shed load during degradation.'], metrics:[{value:'<1ms',label:'Check Time'},{value:'10k/s',label:'Per User Max'},{value:'99.99%',label:'Accuracy'}], connections:[{dir:'up',name:'API Gateway',via:'Middleware'},{dir:'down',name:'Cache Layer',via:'Redis'}] },
+  'Portfolio Management':{ responsibilities:['Source of truth for current positions, allocations, and cost basis.','Spring Boot service exposes gRPC endpoints for analytics and reporting.','Optimistic locking ensures concurrent trade updates never corrupt positions.'], metrics:[{value:'<10ms',label:'Position Read'},{value:'ACID',label:'Consistency'},{value:'1M+',label:'Positions'}], connections:[{dir:'up',name:'API Gateway',via:'gRPC'},{dir:'down',name:'Portfolio DB',via:'JDBC'}] },
+  'Wealth Analytics':{ responsibilities:['Calculates Sharpe, alpha, beta, Sortino for every portfolio nightly.','Apache Spark cluster processes historical returns across millions of data points.','Factor attribution decomposes returns by sector, geography, and style.'], metrics:[{value:'5min',label:'Full Recalc'},{value:'50TB',label:'History'},{value:'200+',label:'Metrics'}], connections:[{dir:'up',name:'Core Services',via:'Kafka Events'},{dir:'down',name:'Data Warehouse',via:'Spark SQL'}] },
+  'Order Management':{ responsibilities:['FIX 4.4 engine routing equity, fixed income, and FX orders to venues.','Smart order routing minimises market impact for large orders.','ZeroMQ pub/sub delivers execution reports with microsecond latency.'], metrics:[{value:'<1ms',label:'Order Entry'},{value:'FIX 4.4',label:'Protocol'},{value:'10k/s',label:'Orders/sec'}], connections:[{dir:'up',name:'API Gateway',via:'gRPC'},{dir:'down',name:'Market Providers',via:'FIX'}] },
+  'Risk Assessment':{ responsibilities:['VaR via Monte Carlo simulation (10,000 scenarios) on CUDA GPU kernels.','Real-time exposure monitoring triggers alerts when thresholds are breached.','Stress testing applies historical crisis scenarios to current portfolios.'], metrics:[{value:'<500ms',label:'VaR Calc'},{value:'10k',label:'Scenarios'},{value:'99%',label:'Confidence'}], connections:[{dir:'up',name:'Portfolio Mgmt',via:'gRPC'},{dir:'down',name:'Market Data DB',via:'TimescaleDB'}] },
+  'Client Management':{ responsibilities:['KYC/AML workflow engine manages document collection and verification.','Node.js event-driven architecture handles high-concurrency onboarding.','RBAC with fine-grained permissions at account and instrument level.'], metrics:[{value:'<2day',label:'KYC Time'},{value:'AML',label:'Screening'},{value:'GDPR',label:'Compliant'}], connections:[{dir:'up',name:'API Gateway',via:'REST'},{dir:'down',name:'Client DB',via:'PostgreSQL'}] },
+  'Reporting Service':{ responsibilities:['Generates PDF statements, tax lots reports, and regulatory filings.','Puppeteer headless Chrome renders HTML templates to pixel-perfect PDFs.','S3 pre-signed URLs deliver documents securely.'], metrics:[{value:'<5s',label:'PDF Gen'},{value:'1M+',label:'Docs/Month'},{value:'S3',label:'Storage'}], connections:[{dir:'up',name:'Portfolio Mgmt',via:'gRPC'},{dir:'down',name:'Document Store',via:'S3 API'}] },
+  'Fee Engine':{ responsibilities:['Calculates AUM management fees with tiered schedules and high-water marks.','Spring Batch processes fee accruals nightly in parallel partitioned steps.','Full audit trail records every fee calculation with input parameters.'], metrics:[{value:'Daily',label:'Accrual'},{value:'100%',label:'Audit Trail'},{value:'bps',label:'Precision'}], connections:[{dir:'up',name:'Portfolio Mgmt',via:'gRPC'},{dir:'down',name:'Portfolio DB',via:'JDBC'}] },
+  'Notification Service':{ responsibilities:['Dispatches real-time alerts for margin calls and trade confirmations.','SendGrid handles transactional email with open-rate tracking.','Twilio SMS for critical alerts requiring immediate attention.'], metrics:[{value:'<1s',label:'Delivery P95'},{value:'99.5%',label:'Deliverability'},{value:'3',label:'Channels'}], connections:[{dir:'up',name:'Event Bus (Kafka)',via:'Consumer'},{dir:'down',name:'Client DB',via:'Contact Lookup'}] },
+  'Event Bus (Kafka)':{ responsibilities:['Durable, ordered, replayable event streams between all microservices.','Topic partitioning by account ID ensures ordered processing.','Schema Registry enforces Avro schemas preventing breaking changes.'], metrics:[{value:'1M/s',label:'Throughput'},{value:'7 days',label:'Retention'},{value:'<10ms',label:'P99 Latency'}], connections:[{dir:'up',name:'All Microservices',via:'Producers'},{dir:'down',name:'All Consumers',via:'Subscribers'}] },
+  'Cache Layer':{ responsibilities:['Redis Cluster caches market data snapshots and session tokens.','LRU eviction with configurable TTLs prevents stale financial data.','Cache-aside pattern keeps cache and database in sync.'], metrics:[{value:'<1ms',label:'Read Latency'},{value:'99%',label:'Hit Rate'},{value:'64GB',label:'Cluster'}], connections:[{dir:'up',name:'Core Microservices',via:'Redis Protocol'},{dir:'down',name:'Market Data DB',via:'Cache-Aside'}] },
+  'Search Index':{ responsibilities:['Full-text and faceted search over instruments, clients, and trades.','Logstash pipeline indexes database change events near-real-time.','Custom analyzers handle ISIN, CUSIP, and ticker symbols accurately.'], metrics:[{value:'<50ms',label:'Query P99'},{value:'500M+',label:'Documents'},{value:'Real-time',label:'Indexing'}], connections:[{dir:'up',name:'API Gateway',via:'REST Search'},{dir:'down',name:'Event Bus',via:'Logstash'}] },
+  'Portfolio DB':{ responsibilities:['ACID-compliant store for accounts, positions, and trade audit trail.','Aurora multi-region cluster provides RPO < 1s on regional failure.','Row-level security isolates tenant data within shared schema.'], metrics:[{value:'<5ms',label:'P99 Read'},{value:'<1s',label:'RPO'},{value:'99.99%',label:'Availability'}], connections:[{dir:'up',name:'Portfolio Mgmt',via:'JDBC'},{dir:'up',name:'Fee Engine',via:'JDBC'}] },
+  'Client DB':{ responsibilities:['Stores user profiles, KYC metadata, permissions, and audit history.','PostgreSQL RLS enforces multi-tenant data isolation at database level.','AES-256 encrypted PII columns managed via AWS KMS.'], metrics:[{value:'AES-256',label:'Encryption'},{value:'RLS',label:'Isolation'},{value:'GDPR',label:'Compliant'}], connections:[{dir:'up',name:'Client Management',via:'JDBC'},{dir:'up',name:'Identity Service',via:'User Lookup'}] },
+  'Market Data DB':{ responsibilities:['Ingests 1M+ tick records per second from market data feeds.','TimescaleDB hypertables auto-partition data by symbol and time.','Continuous aggregates pre-compute OHLCV bars for charting.'], metrics:[{value:'1M/s',label:'Ingest Rate'},{value:'10TB+',label:'Daily Data'},{value:'<20ms',label:'Query P95'}], connections:[{dir:'up',name:'Market Providers',via:'WebSocket'},{dir:'down',name:'Wealth Analytics',via:'SQL'}] },
+  'Document Store':{ responsibilities:['Stores generated PDFs, JSON blobs, and client-uploaded documents.','MongoDB GridFS handles documents exceeding 16MB.','DocumentDB-compatible API allows cloud migration without code changes.'], metrics:[{value:'16MB',label:'Max Doc'},{value:'50TB',label:'Storage'},{value:'<10ms',label:'Retrieval'}], connections:[{dir:'up',name:'Reporting Service',via:'GridFS'},{dir:'up',name:'Client Management',via:'KYC Docs'}] },
+  'Data Warehouse':{ responsibilities:['Columnar analytical store for BI, regulatory reporting, and trends.','dbt models transform operational data into clean analytical datasets.','Snowflake time-travel enables point-in-time queries for audits.'], metrics:[{value:'PB-scale',label:'Capacity'},{value:'<30s',label:'Complex Query'},{value:'90 days',label:'Time Travel'}], connections:[{dir:'up',name:'Event Bus (Kafka)',via:'Snowpipe'},{dir:'down',name:'BI Tools',via:'SQL/JDBC'}] },
+  'Market Providers':{ responsibilities:['Bloomberg B-PIPE delivers institutional-grade real-time price data.','Refinitiv Elektron API provides news analytics and ESG scores.','WebSocket connections maintain persistent subscriptions with auto-reconnect.'], metrics:[{value:'<5ms',label:'Data Latency'},{value:'50M+',label:'Instruments'},{value:'24/7',label:'Availability'}], connections:[{dir:'down',name:'Market Data DB',via:'Ingest Pipeline'},{dir:'down',name:'Cache Layer',via:'Hot Data'}] },
+  'Custodian Banks':{ responsibilities:['Prime brokerage connectivity for custody of client assets and settlement.','SWIFT gpi provides real-time tracking for international wire transfers.','DTC/NSCC interfaces handle US domestic equity clearing.'], metrics:[{value:'T+1',label:'Settlement'},{value:'SWIFT',label:'Standard'},{value:'99.9%',label:'SLA'}], connections:[{dir:'up',name:'Order Management',via:'FIX'},{dir:'down',name:'Portfolio DB',via:'Settlement Confirm'}] },
+  'Regulatory APIs':{ responsibilities:['Automated Form ADV, Form PF, MiFID II transaction reporting.','XBRL/XML submissions comply with SEC EDGAR and FCA requirements.','Idempotent retries with status tracking ensure no report is missed.'], metrics:[{value:'Daily',label:'Reporting'},{value:'MiFID II',label:'Compliant'},{value:'0',label:'Late Filings'}], connections:[{dir:'up',name:'Reporting Service',via:'Scheduled Jobs'},{dir:'down',name:'SEC / FCA',via:'XBRL/REST'}] },
+  'Payment Networks':{ responsibilities:['ACH batch processing for next-day domestic fund movements.','FedWire same-day settlement for large-value institutional transfers.','Plaid integration for instant bank account verification.'], metrics:[{value:'$1B+',label:'Daily Volume'},{value:'T+0',label:'FedWire'},{value:'T+1',label:'ACH'}], connections:[{dir:'up',name:'Portfolio Mgmt',via:'Cash Events'},{dir:'down',name:'Federal Reserve',via:'Fedline'}] },
+  'Rating Agencies':{ responsibilities:['Ingests Moody\'s, S&P, Fitch credit ratings for fixed income portfolios.','Rating change webhooks trigger portfolio risk re-assessment automatically.','Historical transition matrices support credit migration risk modelling.'], metrics:[{value:'Real-time',label:'Updates'},{value:'3',label:'Agencies'},{value:'NLP',label:'Report Parsing'}], connections:[{dir:'up',name:'Market Data DB',via:'Rating Storage'},{dir:'down',name:'Risk Assessment',via:'Credit Risk'}] },
+  'Cloud Infra':{ responsibilities:['Multi-region active-active AWS deployment across us-east-1 and eu-west-1.','Kubernetes autoscaling from 2 to 200 replicas within 60 seconds.','Terraform modules codify all infrastructure with immutable deployments.'], metrics:[{value:'99.99%',label:'Uptime SLA'},{value:'2',label:'Active Regions'},{value:'<60s',label:'Scale-out'}], connections:[{dir:'up',name:'All Services',via:'Kubernetes Pods'},{dir:'down',name:'AWS Services',via:'Terraform'}] },
+  'CI/CD Pipeline':{ responsibilities:['GitLab CI runs unit tests, integration tests, and SAST scans on every commit.','ArgoCD implements GitOps delivery with automated rollbacks on failures.','SonarQube enforces code quality gates blocking merges below 80% coverage.'], metrics:[{value:'<10min',label:'Pipeline Time'},{value:'80%+',label:'Coverage Gate'},{value:'GitOps',label:'Delivery'}], connections:[{dir:'up',name:'Git Repository',via:'Webhooks'},{dir:'down',name:'Kubernetes',via:'ArgoCD'}] },
+  'Monitoring':{ responsibilities:['Prometheus scrapes metrics from all services every 15 seconds.','Grafana dashboards provide real-time SLO and latency percentile views.','Datadog APM provides distributed tracing for bottleneck detection.'], metrics:[{value:'15s',label:'Scrape Interval'},{value:'90 days',label:'Retention'},{value:'200+',label:'Dashboards'}], connections:[{dir:'up',name:'All Services',via:'Prometheus Scrape'},{dir:'down',name:'PagerDuty',via:'Alertmanager'}] },
+  'Logging':{ responsibilities:['ELK Stack aggregates structured JSON logs from all containers.','Splunk SIEM correlates security events and detects anomalous access.','OpenTelemetry SDK instruments all services with traces, metrics, and logs.'], metrics:[{value:'10TB/day',label:'Log Volume'},{value:'<5s',label:'Ingest Delay'},{value:'30 days',label:'Hot Retention'}], connections:[{dir:'up',name:'All Services',via:'Filebeat'},{dir:'down',name:'Security Team',via:'Splunk SIEM'}] },
+  // ── FDS ──────────────────────────────────────────────
+  'Color Tokens':{ responsibilities:['Semantic color primitives for brand, surface, text, status, and data visualisation roles.','All colors are CSS Custom Properties synced to Figma via Style Dictionary for single-source management.','Dark, light, and high-contrast themes are derived from the same base token set.'], metrics:[{value:'12',label:'Token Tiers'},{value:'3',label:'Themes'},{value:'WCAG AA',label:'Contrast'}], connections:[{dir:'down',name:'Theme Engine',via:'CSS Variables'},{dir:'down',name:'All Components',via:'Design Tokens'}] },
+  'Typography Tokens':{ responsibilities:['Font families, weights, sizes, line-heights, and letter-spacing for every text role.','Fluid Type Scale ensures proportional text sizing across all screen breakpoints.','Figma typography styles kept in sync with code tokens via Style Dictionary pipeline.'], metrics:[{value:'8',label:'Scale Steps'},{value:'Fluid',label:'Responsive'},{value:'WCAG AA',label:'Readability'}], connections:[{dir:'down',name:'Theme Engine',via:'CSS Variables'},{dir:'down',name:'Component Library',via:'Font Tokens'}] },
+  'Spacing & Layout Tokens':{ responsibilities:['4px-base spacing scale covering xs through 2xl used in all component padding and margins.','CSS Grid and Flexbox layout utilities built on top of these baseline token values.','Breakpoint tokens define the responsive grid across 5 screen size tiers.'], metrics:[{value:'4px',label:'Base Unit'},{value:'5',label:'Breakpoints'},{value:'16',label:'Scale Steps'}], connections:[{dir:'down',name:'Component Library',via:'CSS Classes'},{dir:'down',name:'Grid System',via:'Tokens'}] },
+  'Motion & Animation Tokens':{ responsibilities:['Standardised easing curves and duration steps for a consistent motion language.','Framer Motion variants reference token values for cross-component animation coherence.','Reduced-motion media query variants are included for every animated token.'], metrics:[{value:'6',label:'Easing Curves'},{value:'8',label:'Duration Steps'},{value:'prefers-reduced-motion',label:'A11y'}], connections:[{dir:'down',name:'Component Library',via:'Animation Props'},{dir:'down',name:'Page Transitions',via:'Framer Motion'}] },
+  'Shadow & Elevation Tokens':{ responsibilities:['Layered shadow system from 2xs to 2xl communicating depth and hierarchy.','Tokens map directly to Tailwind shadow utilities for consistent developer ergonomics.','Dark-mode shadow variants use opacity-adjusted colours to avoid washed-out effects.'], metrics:[{value:'8',label:'Elevation Levels'},{value:'2',label:'Theme Variants'},{value:'Tailwind',label:'Integration'}], connections:[{dir:'down',name:'Card Components',via:'Elevation Tokens'},{dir:'down',name:'Modal / Panel',via:'Shadow Tokens'}] },
+  'Theme Engine':{ responsibilities:['Runtime theme switching between light, dark, high-contrast, and white-label brand themes.','CSS Custom Properties updated via JavaScript theme manager with zero flash of unstyled content.','Radix Colors provides accessible, perceptually uniform colour scales for each theme.'], metrics:[{value:'<16ms',label:'Switch Time'},{value:'4',label:'Themes'},{value:'0',label:'FOUC'}], connections:[{dir:'up',name:'Color Tokens',via:'CSS Variables'},{dir:'down',name:'All Components',via:'CSS Variables'}] },
+  'WCAG 2.1 AA Compliance':{ responsibilities:['Contrast ratios ≥4.5:1 enforced for all text and interactive elements in CI.','Reflow at 320px and no-flashing-content rules enforced via automated a11y tests.','axe-core and jest-axe run accessibility audits on every component in the test suite.'], metrics:[{value:'4.5:1',label:'Min Contrast'},{value:'0',label:'a11y Errors'},{value:'WCAG AA',label:'Standard'}], connections:[{dir:'down',name:'All Components',via:'A11y Audit'},{dir:'down',name:'CI Pipeline',via:'jest-axe'}] },
+  'ARIA Patterns Library':{ responsibilities:['Semantic roles, live regions, focus management, and keyboard navigation for all interactive components.','Patterns follow WAI-ARIA Authoring Practices 1.2 for all widget roles.','Screen-reader announcements tested against NVDA, JAWS, and VoiceOver.'], metrics:[{value:'WAI-ARIA 1.2',label:'Standard'},{value:'3',label:'Screen Readers'},{value:'100%',label:'Coverage'}], connections:[{dir:'up',name:'A11y Standards',via:'Patterns'},{dir:'down',name:'Component Library',via:'ARIA Props'}] },
+  'Internationalisation (i18n)':{ responsibilities:['RTL layout support with logical CSS properties for Arabic, Hebrew, and Persian locales.','Locale-aware number formatting, date formatting, and multi-language message catalogs.','i18next with React bindings handles dynamic language switching at runtime.'], metrics:[{value:'40+',label:'Locales'},{value:'RTL',label:'Layout Support'},{value:'ICU',label:'Message Format'}], connections:[{dir:'down',name:'Component Library',via:'i18n Props'},{dir:'down',name:'All Apps',via:'Translation Keys'}] },
+  'Automated A11y Testing':{ responsibilities:['CI-gated accessibility audits blocking PRs that regress contrast, focus, or ARIA semantics.','Cypress a11y plugin runs full-page audits on every Storybook story during E2E tests.','Lighthouse CI tracks accessibility score over time with regression alerts.'], metrics:[{value:'100%',label:'Story Coverage'},{value:'0',label:'Regressions Shipped'},{value:'Lighthouse',label:'Score Tracking'}], connections:[{dir:'up',name:'WCAG Compliance',via:'Audit Rules'},{dir:'down',name:'CI Pipeline',via:'Blocking Gate'}] },
+  'Primitive Components':{ responsibilities:['Atoms: Button, Input, Checkbox, Radio, Select, Toggle — all ARIA-correct and keyboard navigable.','Headless Radix UI primitives provide accessible behaviour, styled with design tokens.','Variants are generated via class-variance-authority for type-safe prop APIs.'], metrics:[{value:'40+',label:'Primitives'},{value:'100%',label:'A11y Tested'},{value:'CVA',label:'Variant Engine'}], connections:[{dir:'up',name:'Design Tokens',via:'CSS Variables'},{dir:'down',name:'Compound Components',via:'Composition'}] },
+  'Data Display Components':{ responsibilities:['Table, DataGrid, Chart, Terminal, Heatmap, and Sparkline for financial data display.','AG Grid integration provides server-side row model for millions of rows.','Recharts and D3 wrappers follow design token colour scales for visual consistency.'], metrics:[{value:'100k+',label:'Rows Supported'},{value:'15+',label:'Chart Types'},{value:'ARIA',label:'Grid Roles'}], connections:[{dir:'up',name:'Primitive Components',via:'Composition'},{dir:'down',name:'Dashboard Apps',via:'Data Props'}] },
+  'Form Components':{ responsibilities:['Form, Field, Validation, and Error components with React Hook Form integration.','Zod schema validation provides runtime type-safe field constraints.','Accessible error messages announced to screen readers via aria-live regions.'], metrics:[{value:'Zod',label:'Validation'},{value:'0',label:'Uncontrolled State'},{value:'a11y',label:'Error Announce'}], connections:[{dir:'up',name:'Primitive Components',via:'Base Inputs'},{dir:'down',name:'Onboarding Flows',via:'Form Schema'}] },
+  'Layout Components':{ responsibilities:['Stack, Grid, Container, Divider, Spacer — layout primitives consuming spacing tokens.','Responsive layout components adapt across 5 breakpoints via CSS Grid and Flexbox.','Compound layout patterns like SplitPane and ResizablePanel built on primitive layout tokens.'], metrics:[{value:'5',label:'Breakpoints'},{value:'16',label:'Spacing Steps'},{value:'0',label:'JS Layouts'}], connections:[{dir:'up',name:'Spacing Tokens',via:'CSS Vars'},{dir:'down',name:'All Page Templates',via:'Layout Wrappers'}] },
+  'Feedback & Status':{ responsibilities:['Toast, Alert, Banner, Progress, Skeleton Loader, and Error Boundary components.','Toasts use a portal-based queue system with configurable duration and dismiss actions.','Error Boundaries capture React render errors and display graceful fallback UIs.'], metrics:[{value:'Portal',label:'Toast Rendering'},{value:'6',label:'Feedback Types'},{value:'React 18',label:'Error Boundary'}], connections:[{dir:'up',name:'ARIA Patterns',via:'Live Regions'},{dir:'down',name:'All Apps',via:'Notification System'}] },
+  'Navigation Components':{ responsibilities:['CommandPalette, NavigationMenu, Breadcrumb, Sidebar, and Tabs — all keyboard navigable.','Command palette with fuzzy search enables power-user navigation across the entire platform.','Navigation state is URL-driven with React Router ensuring deep-link compatibility.'], metrics:[{value:'Fuzzy',label:'Search Algorithm'},{value:'Full KB',label:'Navigation'},{value:'Deep-link',label:'URL Sync'}], connections:[{dir:'up',name:'ARIA Patterns',via:'Menu Roles'},{dir:'down',name:'All Applications',via:'Routing'}] },
+  'Storybook':{ responsibilities:['Living component catalogue with isolated rendering, controls, and documentation.','Stories serve as the source of truth for both design review and automated a11y testing.','Chromatic visual regression runs on every PR, capturing pixel diffs across all stories.'], metrics:[{value:'300+',label:'Stories'},{value:'Every PR',label:'Visual Review'},{value:'Chromatic',label:'VRT'}], connections:[{dir:'up',name:'Component Library',via:'Stories'},{dir:'down',name:'Design Reviews',via:'Story Links'}] },
+  'Figma Design Library':{ responsibilities:['Auto-layout Figma components mirror the React component API for design-dev parity.','Token Studio plugin keeps Figma token values in sync with the code token JSON files.','Design handoff annotations are generated automatically from component properties.'], metrics:[{value:'1:1',label:'Component Parity'},{value:'Token Studio',label:'Sync'},{value:'Auto-layout',label:'Responsive'}], connections:[{dir:'up',name:'Design Tokens',via:'Token Studio'},{dir:'down',name:'Dev Handoff',via:'Figma Links'}] },
+  'Visual Regression (Chromatic)':{ responsibilities:['Baseline screenshot tests run on every PR across all Storybook stories and viewports.','Multi-browser snapshots capture rendering differences in Chrome, Firefox, and Safari.','Approved baselines are stored in Chromatic cloud and compared on each build.'], metrics:[{value:'5',label:'Viewports'},{value:'3',label:'Browsers'},{value:'<3min',label:'Run Time'}], connections:[{dir:'up',name:'Storybook',via:'Stories'},{dir:'down',name:'CI Pipeline',via:'Blocking Gate'}] },
+  'UX Patterns Guidelines':{ responsibilities:['Documents interaction patterns, empty states, loading states, and financial data formatting conventions.','Micro-copy guidelines ensure consistent tone across error messages, confirmations, and labels.','Data visualisation standards define chart type selection, axis formatting, and colour usage rules.'], metrics:[{value:'50+',label:'Patterns Documented'},{value:'3',label:'Editorial Tiers'},{value:'MDX',label:'Format'}], connections:[{dir:'up',name:'Component Library',via:'Usage Rules'},{dir:'down',name:'All Product Teams',via:'Guidelines'}] },
+  'Wealth Dashboard MFE':{ responsibilities:['Portfolio overview with real-time P&L, allocation charts, and performance attribution.','Lazy-loaded MFE bootstrapped via Module Federation from the MFE host shell.','WebSocket subscription maintains live position values with optimistic UI updates.'], metrics:[{value:'LCP <2s',label:'Core Web Vital'},{value:'Module Fed.',label:'Loading'},{value:'Live P&L',label:'Feature'}], connections:[{dir:'up',name:'Micro-Frontend Host',via:'Module Federation'},{dir:'down',name:'Portfolio Mgmt API',via:'GraphQL'}] },
+  'Portfolio Manager MFE':{ responsibilities:['Rebalancing workflow, drift analysis, and tax-lot management for advisor users.','AG Grid data grid handles large portfolios with server-side pagination and sorting.','Proposal generation exports model vs. actual allocation diff as a PDF report.'], metrics:[{value:'AG Grid',label:'Data Engine'},{value:'PDF Export',label:'Feature'},{value:'Server-side',label:'Pagination'}], connections:[{dir:'up',name:'Micro-Frontend Host',via:'Module Federation'},{dir:'down',name:'Wealth Analytics API',via:'REST'}] },
+  'Investment Analytics MFE':{ responsibilities:['Risk metrics dashboard showing VaR, exposure breakdown, and stress test scenarios.','Recharts and D3 custom visualisations render exposure heat maps and scenario waterfalls.','Real-time updates when risk thresholds are breached via Server-Sent Events.'], metrics:[{value:'SSE',label:'Real-time Updates'},{value:'D3 Custom',label:'Charts'},{value:'VaR',label:'Core Metric'}], connections:[{dir:'up',name:'Micro-Frontend Host',via:'Module Federation'},{dir:'down',name:'Risk Assessment API',via:'REST/SSE'}] },
+  'Advisor Console MFE':{ responsibilities:['Client roster, household grouping, and CRM-lite for relationship managers.','Bulk action workflows allow advisors to apply model changes across client groups.','Activity feed surfaces compliance flags, client interactions, and trade history.'], metrics:[{value:'Bulk Actions',label:'Workflow'},{value:'Activity Feed',label:'Feature'},{value:'CRM-lite',label:'Capability'}], connections:[{dir:'up',name:'Micro-Frontend Host',via:'Module Federation'},{dir:'down',name:'Client Management API',via:'REST'}] },
+  'Trade Execution MFE':{ responsibilities:['Order ticket, order blotter, execution algorithm selector, and real-time order status.','FIX protocol messages surfaced in the UI via WebSocket relay from Order Management service.','Keyboard-driven order entry designed for speed — full order in under 5 keystrokes.'], metrics:[{value:'<5',label:'Keystrokes/Order'},{value:'WebSocket',label:'Status Updates'},{value:'FIX Relay',label:'Protocol'}], connections:[{dir:'up',name:'Micro-Frontend Host',via:'Module Federation'},{dir:'down',name:'Order Management API',via:'WebSocket/REST'}] },
+  'Mobile App (Expo)':{ responsibilities:['Cross-platform React Native app sharing 80% of business logic with the web MFEs.','Expo managed workflow provides OTA updates without app store review cycles.','Design tokens consumed via React Native StyleSheet ensuring visual consistency with web.'], metrics:[{value:'80%',label:'Code Share'},{value:'OTA',label:'Updates'},{value:'iOS + Android',label:'Platforms'}], connections:[{dir:'up',name:'Micro-Frontend Host',via:'Shared Logic'},{dir:'down',name:'API Gateway',via:'REST/WebSocket'}] },
+  'Global State (Zustand)':{ responsibilities:['Lightweight global state for auth session, theme, feature flags, and notification queue.','Zustand middleware handles state persistence to sessionStorage and cross-tab sync.','Devtools integration provides time-travel debugging in development builds.'], metrics:[{value:'<5KB',label:'Bundle Size'},{value:'Immer',label:'Mutation Model'},{value:'Time Travel',label:'Devtools'}], connections:[{dir:'down',name:'All MFEs',via:'Shared State'},{dir:'down',name:'Theme Engine',via:'Theme State'}] },
+  'Server State (TanStack Query)':{ responsibilities:['Manages all async server state: fetching, caching, synchronising, and revalidating.','Stale-while-revalidate pattern ensures instant UI updates while background refreshes run.','Optimistic mutations provide immediate feedback on trade submissions before server confirmation.'], metrics:[{value:'Stale-while-revalidate',label:'Strategy'},{value:'Optimistic',label:'Mutations'},{value:'Auto-retry',label:'On Failure'}], connections:[{dir:'down',name:'All MFEs',via:'Data Hooks'},{dir:'down',name:'API Gateway',via:'HTTP/GraphQL'}] },
+  'Real-Time State (WebSocket)':{ responsibilities:['Centralised WebSocket manager handles reconnection, backpressure, and message routing.','Per-subscription heartbeat monitoring detects stale connections and triggers reconnect.','Message normalisation layer maps raw server events to typed Redux-like state actions.'], metrics:[{value:'Auto-reconnect',label:'Resilience'},{value:'<50ms',label:'Message Dispatch'},{value:'Typed',label:'Message Schema'}], connections:[{dir:'down',name:'All Real-time MFEs',via:'WebSocket Events'},{dir:'down',name:'API Gateway',via:'WS Connection'}] },
+  'Micro-Frontend Host':{ responsibilities:['Single shell application bootstrapping all MFEs via Webpack Module Federation at runtime.','Route-based MFE activation with prefetch hints for likely next routes.','Shared singleton dependencies (React, React Router, Design System) prevent duplicate bundles.'], metrics:[{value:'<100KB',label:'Shell Bundle'},{value:'Runtime',label:'MFE Loading'},{value:'Singleton',label:'Shared Deps'}], connections:[{dir:'up',name:'All MFEs',via:'Module Federation'},{dir:'down',name:'CDN & Edge Caching',via:'Asset Delivery'}] },
+  'Performance Optimization':{ responsibilities:['Code splitting, tree shaking, and dynamic imports reduce initial JS payload below 200KB.','React Server Components pre-render data-heavy views on the edge for instant first paint.','Bundle analyser reports track per-MFE size budgets and flag regressions in CI.'], metrics:[{value:'<200KB',label:'Initial JS'},{value:'LCP <2.5s',label:'Core Web Vital'},{value:'CLS <0.1',label:'Layout Stability'}], connections:[{dir:'up',name:'All MFEs',via:'Build Pipeline'},{dir:'down',name:'CI/CD Pipeline',via:'Bundle Budget Gate'}] },
+  'CDN & Edge Caching':{ responsibilities:['CloudFlare CDN serves all static assets from 200+ PoPs with immutable cache headers.','Edge Workers run A/B test assignment and feature flag resolution at the CDN layer.','Stale-if-error fallback ensures users see cached content during origin outages.'], metrics:[{value:'200+ PoPs',label:'Global Coverage'},{value:'stale-if-error',label:'Resilience'},{value:'<10ms',label:'TTFB'}], connections:[{dir:'up',name:'MFE Host Shell',via:'Asset Requests'},{dir:'down',name:'Browser',via:'Cached Assets'}] },
+  'Frontend Observability':{ responsibilities:['Sentry captures runtime errors, unhandled promise rejections, and React error boundaries.','Real User Monitoring tracks Core Web Vitals, long tasks, and interaction-to-next-paint per page.','Session replay with PII masking helps reproduce user-reported bugs without data exposure.'], metrics:[{value:'Sentry',label:'Error Tracking'},{value:'INP',label:'Responsiveness'},{value:'PII Masked',label:'Session Replay'}], connections:[{dir:'up',name:'All MFEs',via:'SDK Instrumentation'},{dir:'down',name:'Monitoring Layer',via:'Error Events'}] },
+  'Frontend CI/CD':{ responsibilities:['Preview deployments on Vercel for every PR enable design and QA review before merge.','Lighthouse CI and bundle budget checks block merges that regress performance metrics.','Automated smoke tests run against preview environments via Playwright on each deploy.'], metrics:[{value:'Preview',label:'Per PR'},{value:'Playwright',label:'Smoke Tests'},{value:'Lighthouse CI',label:'Perf Gate'}], connections:[{dir:'up',name:'GitLab CI',via:'Pipeline Trigger'},{dir:'down',name:'Vercel',via:'Deployment'}] },
+  'API Gateway (GraphQL + REST)':{ responsibilities:['Type-safe GraphQL client using codegen from schema for all data-fetching operations.','REST API calls wrapped in TanStack Query hooks with standardised error handling.','Request deduplication and batching in the Apollo Client reduce redundant network round-trips.'], metrics:[{value:'Apollo',label:'GraphQL Client'},{value:'Codegen',label:'Type Safety'},{value:'Batched',label:'Requests'}], connections:[{dir:'up',name:'Server State Layer',via:'HTTP/GraphQL'},{dir:'down',name:'API Gateway',via:'HTTPS'}] },
+  'Auth & Session (OAuth 2.0 / PKCE)':{ responsibilities:['PKCE OAuth 2.0 flow with silent token refresh using a hidden iframe.','Access tokens stored in memory (never localStorage) to prevent XSS token theft.','Session timeout warnings with automatic logout on inactivity for compliance.'], metrics:[{value:'PKCE',label:'Flow'},{value:'Memory Only',label:'Token Storage'},{value:'Silent Refresh',label:'UX'}], connections:[{dir:'up',name:'Identity Service',via:'OAuth Redirect'},{dir:'down',name:'API Gateway',via:'Bearer Token'}] },
+  'Backend for Frontend (BFF)':{ responsibilities:['Thin Node.js aggregation layer tailoring API responses for each frontend persona.','Reduces over-fetching by composing GraphQL queries for each page layout server-side.','Handles server-side session management for SSR pages requiring authenticated data.'], metrics:[{value:'Persona-tailored',label:'API Shape'},{value:'SSR Auth',label:'Capability'},{value:'Aggregation',label:'Pattern'}], connections:[{dir:'up',name:'All MFEs',via:'Fetch'},{dir:'down',name:'Core Microservices',via:'GraphQL/REST'}] },
+  'API Mocking & Contract Tests':{ responsibilities:['MSW (Mock Service Worker) intercepts network requests in Storybook and test environments.','Pact contract tests verify consumer-driven contracts between FE and BE services in CI.','Generated OpenAPI mocks ensure the frontend never tests against stale API shapes.'], metrics:[{value:'MSW',label:'Mock Engine'},{value:'Pact',label:'Contract Tests'},{value:'OpenAPI',label:'Schema Source'}], connections:[{dir:'up',name:'All Test Suites',via:'MSW Handlers'},{dir:'down',name:'CI Pipeline',via:'Pact Broker'}] },
+};
+
+// ══════════════════════════════════════════════════════
+//  SIDE PANEL
+// ══════════════════════════════════════════════════════
+const backdrop  = document.getElementById('panel-backdrop');
+const sidePanel = document.getElementById('side-panel');
+const panelClose       = document.getElementById('panel-close');
+const panelCloseFooter = document.getElementById('panel-close-footer');
+
+function openPanel(card) {
+  const meta      = getLayerMeta(card);
+  const name      = card.dataset.name || '';
+  const layerLabel= card.dataset.layer || '';
+  const data      = serviceData[name];
+
+  // Accent bar
+  document.getElementById('panel-accent-bar').style.background =
+    'linear-gradient(90deg,' + meta.accent[0] + ',' + meta.accent[1] + ')';
+
+  // Title & badge
+  document.getElementById('panel-title').textContent = name;
+  const badge = document.getElementById('panel-layer-badge');
+  badge.textContent = layerLabel;
+  badge.style.cssText = 'background:' + meta.badgeBg + ';border-color:' + meta.badgeBorder + ';color:' + meta.badgeColor;
+
+  // Build body
+  const body = document.getElementById('panel-body');
+  body.innerHTML = '';
+
+  // Overview section
+  const overviewSec = document.createElement('div');
+  overviewSec.className = 'panel-section';
+  overviewSec.innerHTML =
+    '<div class="panel-section-label">Overview</div>' +
+    '<div class="panel-desc">' + (card.dataset.desc || '') + '</div>';
+  body.appendChild(overviewSec);
+
+  if (data && data.responsibilities) {
+    // Responsibilities
+    const respSec = document.createElement('div');
+    respSec.className = 'panel-section';
+    respSec.innerHTML =
+      '<div class="panel-section-label">Responsibilities</div>' +
+      '<div class="panel-responsibilities">' +
+        data.responsibilities.map(function(r) {
+          return '<div class="panel-resp-item">' +
+            '<div class="panel-resp-bullet" style="background:' + meta.accent[0] + '"></div>' +
+            '<span>' + r + '</span></div>';
+        }).join('') +
+      '</div>';
+    body.appendChild(respSec);
+  }
+
+  // Tech Stack
+  const tags = (card.dataset.tags || '').split(',').filter(Boolean);
+  if (tags.length) {
+    const techSec = document.createElement('div');
+    techSec.className = 'panel-section';
+    const techHtml = tags.map(function(t) {
+      const abbr = t.trim().replace(/[^A-Z0-9]/gi,'').substring(0,3).toUpperCase();
+      return '<div class="panel-tech-item">' +
+        '<div class="panel-tech-icon" style="background:' + meta.tagBg + ';border:1px solid ' + meta.tagBorder + ';color:' + meta.tagColor + '">' + abbr + '</div>' +
+        '<div><div class="panel-tech-name">' + t.trim() + '</div><div class="panel-tech-role">Technology</div></div></div>';
+    }).join('');
+    techSec.innerHTML = '<div class="panel-section-label">Tech Stack</div><div class="panel-tech-grid">' + techHtml + '</div>';
+    body.appendChild(techSec);
+  }
+
+  if (data && data.metrics) {
+    // Metrics
+    const metSec = document.createElement('div');
+    metSec.className = 'panel-section';
+    const metHtml = data.metrics.map(function(m) {
+      return '<div class="panel-metric">' +
+        '<div class="panel-metric-value" style="color:' + meta.accent[0] + '">' + m.value + '</div>' +
+        '<div class="panel-metric-label">' + m.label + '</div></div>';
+    }).join('');
+    metSec.innerHTML = '<div class="panel-section-label">Performance Metrics</div><div class="panel-metrics">' + metHtml + '</div>';
+    body.appendChild(metSec);
+  }
+
+  if (data && data.connections) {
+    // Connections
+    const connSec = document.createElement('div');
+    connSec.className = 'panel-section';
+    const connHtml = data.connections.map(function(c) {
+      return '<div class="panel-conn-item">' +
+        '<span class="panel-conn-dir ' + c.dir + '">' + (c.dir === 'up' ? '↑ FROM' : '↓ TO') + '</span>' +
+        '<span class="panel-conn-name">' + c.name + '</span>' +
+        '<span class="panel-conn-via">' + c.via + '</span></div>';
+    }).join('');
+    connSec.innerHTML = '<div class="panel-section-label">Connections</div><div class="panel-connections">' + connHtml + '</div>';
+    body.appendChild(connSec);
+  }
+
+  // Highlight card
+  document.querySelectorAll('.service-card.highlighted').forEach(function(c) { c.classList.remove('highlighted'); });
+  card.classList.add('highlighted');
+
+  backdrop.classList.add('open');
+  sidePanel.classList.add('open');
+}
+
+function closePanel() {
+  backdrop.classList.remove('open');
+  sidePanel.classList.remove('open');
+  document.querySelectorAll('.service-card.highlighted').forEach(function(c) { c.classList.remove('highlighted'); });
+}
+
+backdrop.addEventListener('click', closePanel);
+panelClose.addEventListener('click', closePanel);
+panelCloseFooter.addEventListener('click', closePanel);
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePanel(); });
+
+// ── Attach click listeners to ALL cards (arch + FDS) ────
+function attachCardListeners() {
+  document.querySelectorAll('.service-card').forEach(function(card) {
+    // Remove old listeners by cloning
+    const fresh = card.cloneNode(true);
+    card.parentNode.replaceChild(fresh, card);
+  });
+  document.querySelectorAll('.service-card').forEach(function(card) {
+    card.addEventListener('click', function() { openPanel(this); });
+  });
+}
+attachCardListeners();
+attachHoverListeners(); // re-attach after clone
+
+// ══════════════════════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════════════════════
+function setupSearch(inputId, scope) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    const cards = document.querySelectorAll(scope + ' .service-card');
+    if (!q) { cards.forEach(function(c) { c.classList.remove('search-match','search-dimmed'); }); return; }
+    cards.forEach(function(card) {
+      const text = ((card.dataset.name||'') + ' ' + (card.dataset.tags||'') + ' ' + (card.dataset.desc||'')).toLowerCase();
+      if (text.includes(q)) { card.classList.add('search-match'); card.classList.remove('search-dimmed'); }
+      else { card.classList.remove('search-match'); card.classList.add('search-dimmed'); }
+    });
+  });
+}
+setupSearch('search-input', '#view-arch');
+setupSearch('fds-search-input', '#view-fds');
+
+// ══════════════════════════════════════════════════════
+//  SCROLL REVEAL
+// ══════════════════════════════════════════════════════
+const revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) entry.target.style.animationPlayState = 'running';
+  });
+}, { threshold: 0.05 });
+
+document.querySelectorAll('.layer').forEach(function(l) {
+  l.style.animationPlayState = 'paused';
+  revealObserver.observe(l);
+});
+
+// ══════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════════════════════
+const tabArch     = document.getElementById('tab-arch');
+const tabFds      = document.getElementById('tab-fds');
+const viewArch    = document.getElementById('view-arch');
+const viewFds     = document.getElementById('view-fds');
+const sysSubHeader= document.querySelector('.sub-header');
+
+function activateTab(tab) {
+  closePanel();
+  if (tab === 'arch') {
+    tabArch.classList.add('active');
+    tabFds.classList.remove('active');
+    viewArch.style.display = '';
+    viewFds.style.display  = 'none';
+    sysSubHeader.style.display = '';
+  } else {
+    tabFds.classList.add('active');
+    tabArch.classList.remove('active');
+    viewArch.style.display = 'none';
+    viewFds.style.display  = '';
+    sysSubHeader.style.display = 'none';
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Redraw global flows for the newly-active view
+  if (dataFlowsActive) { clearGlobalFlows(); setTimeout(drawGlobalFlows, 200); }
+}
+
+tabArch.addEventListener('click', function(e) { e.preventDefault(); activateTab('arch'); });
+tabFds.addEventListener('click',  function(e) { e.preventDefault(); activateTab('fds');  });
+
+// ══════════════════════════════════════════════════════
+//  THEME TOGGLE
+// ══════════════════════════════════════════════════════
+(function() {
+  var btn      = document.getElementById('theme-toggle');
+  var iconMoon = document.getElementById('icon-moon');
+  var iconSun  = document.getElementById('icon-sun');
+  var root     = document.documentElement;
+
+  // Persist preference
+  var saved = localStorage.getItem('archvault-theme') || 'dark';
+  applyTheme(saved);
+
+  btn.addEventListener('click', function() {
+    var current = root.getAttribute('data-theme') || 'dark';
+    var next    = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('archvault-theme', next);
+    // Redraw global flows so colors reflect new accents
+    if (typeof dataFlowsActive !== 'undefined' && dataFlowsActive) {
+      if (typeof clearGlobalFlows === 'function') clearGlobalFlows();
+      setTimeout(function() {
+        if (typeof drawGlobalFlows === 'function') drawGlobalFlows();
+      }, 80);
+    }
+  });
+
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    if (theme === 'light') {
+      iconMoon.style.display = 'none';
+      iconSun.style.display  = 'block';
+      btn.style.background   = 'var(--surface2)';
+      btn.title = 'Switch to dark mode';
+    } else {
+      iconMoon.style.display = 'block';
+      iconSun.style.display  = 'none';
+      btn.style.background   = 'var(--surface2)';
+      btn.title = 'Switch to light mode';
+    }
+  }
+
+  // Hover effect on toggle button
+  btn.addEventListener('mouseenter', function() {
+    this.style.background = 'var(--surface)';
+    this.style.borderColor = 'var(--border2)';
+    this.style.color = 'var(--text)';
+  });
+  btn.addEventListener('mouseleave', function() {
+    this.style.background = 'var(--surface2)';
+    this.style.color = 'var(--text-muted)';
+  });
+})();
+
+</script>
+</body>
+</html>
